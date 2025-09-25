@@ -1,0 +1,111 @@
+/* Page background using logo colors */
+.login-page {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #9c27b0, #ff6a00);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-container {
+    background: #fff;
+    width: 400px;
+    padding: 40px 30px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+    text-align: center;
+    animation: fadeIn 0.8s ease;
+}
+
+.login-container img {
+    max-width: 120px;
+    margin-bottom: 20px;
+}
+
+.login-container h4 {
+    font-weight: bold;
+    color: #3c8dbc;
+    margin-bottom: 10px;
+}
+
+.login-container p {
+    color: #6c757d;
+    font-size: 14px;
+    margin-bottom: 25px;
+}
+
+.form-group label {
+    font-weight: 600;
+    color: #444;
+    float: left;
+}
+
+.form-control {
+    border-radius: 6px;
+    padding: 12px;
+    border: 1px solid #ccc;
+    width: 100%;
+}
+
+.btn-primary {
+    background-color: #3c8dbc;
+    border: none;
+    border-radius: 6px;
+    padding: 12px;
+    font-weight: 600;
+    width: 100%;
+    margin-top: 15px;
+    transition: 0.3s;
+}
+
+.btn-primary:hover {
+    background-color: #367fa9;
+}
+
+.forgot-link {
+    display: block;
+    margin-top: 12px;
+    font-size: 13px;
+    color: #3c8dbc;
+    text-decoration: none;
+}
+
+.forgot-link:hover {
+    text-decoration: underline;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Custom top-to-center toast */
+.custom-toast {
+    position: fixed;
+    top: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #4BB543;
+    color: #fff;
+    padding: 15px 30px;
+    border-radius: 8px;
+    font-weight: 600;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    z-index: 9999;
+    transition: all 0.5s ease;
+}
+
+.custom-toast.show {
+    top: 50%;
+    /* center vertically */
+    transform: translate(-50%, -50%);
+}
