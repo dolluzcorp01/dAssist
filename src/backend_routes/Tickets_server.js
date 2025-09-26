@@ -240,4 +240,21 @@ router.post("/send_status_mail", async (req, res) => {
     });
 });
 
+// Get history by ticket_id
+router.get("/ticket_history/:ticketId", (req, res) => {
+    const { ticketId } = req.params;
+    const query = `
+        SELECT h.ticket_status, e.emp_name, h.updated_time
+        FROM ticket_status_history h
+        JOIN employee e ON h.updated_by = e.emp_id
+        WHERE h.ticket_id = ?
+        ORDER BY h.updated_time DESC
+    `;
+    db.query(query, [ticketId], (err, results) => {
+        if (err) return res.status(500).json({ error: "Database error" });
+        res.json(results);
+    });
+});
+
+
 module.exports = router;

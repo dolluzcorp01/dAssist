@@ -111,7 +111,7 @@
 .ticket-modal-content {
     background: #fefefe;
     width: 85%;
-    height: 50%;
+    height: 80%;
     display: flex;
     border-radius: 12px;
     overflow: hidden;
@@ -231,27 +231,28 @@
 }
 
 /* Color code for each status */
-.status-Open {
+/* Scoped only for dropdown */
+.status-dropdown-container .status-Open {
     background: #3498db;
 }
 
-.status-In-Review {
+.status-dropdown-container .status-In-Review {
     background: #f1c40f;
 }
 
-.status-In-Progress {
+.status-dropdown-container .status-In-Progress {
     background: #9b59b6;
 }
 
-.status-Action-Pending {
+.status-dropdown-container .status-Action-Pending {
     background: #e67e22;
 }
 
-.status-Cancelled {
+.status-dropdown-container .status-Cancelled {
     background: #e74c3c;
 }
 
-.status-Resolved {
+.status-dropdown-container .status-Resolved {
     background: #2ecc71;
 }
 
@@ -305,6 +306,76 @@ textarea {
 .close-icon:hover {
     background: #cfcfcf;
     color: #000;
+}
+
+.history-timeline {
+    flex: 1;
+    overflow-y: auto;
+    max-height: 220px;
+    padding-left: 15px;
+    border-left: 3px solid #9c27b0;
+}
+
+.history-item {
+    margin-bottom: 15px;
+    position: relative;
+}
+
+.history-item::before {
+    content: "";
+    position: absolute;
+    left: -11px;
+    top: 5px;
+    width: 10px;
+    height: 10px;
+    background-color: #ff6a00;
+    border-radius: 50%;
+}
+
+.history-status {
+    font-weight: 600;
+    margin-left: 10px;
+    color: #333;
+}
+
+.label {
+    font-weight: 600;
+    color: #444;
+    margin-right: 5px;
+}
+
+.history-meta {
+    font-size: 15px;
+    margin-left: 10px;
+    color: #666;
+    margin-top: 3px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.status-Open::before {
+    background: #3498db;
+}
+
+.status-In-Review::before {
+    background: #f1c40f;
+}
+
+.status-In-Progress::before {
+    background: #9b59b6;
+}
+
+.status-Action-Pending::before {
+    background: #e67e22;
+}
+
+.status-Cancelled::before {
+    background: #e74c3c;
+}
+
+.status-Resolved::before {
+    background: #2ecc71;
 }
 
 .swal2-container {

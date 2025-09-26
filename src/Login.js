@@ -65,7 +65,7 @@ function Login() {
     return (
         <div className="login-page">
             <div className="login-container">
-                <img src={LOGO} alt="DAssist Logo" />
+                <img src={LOGO} alt="dAssist Logo" />
                 <h4>Sign In</h4>
                 <p>Please login to access the dashboard</p>
 
