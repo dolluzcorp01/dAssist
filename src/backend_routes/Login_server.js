@@ -25,7 +25,7 @@ router.post("/login", (req, res) => {
         }
 
         // ✅ Check if employee is admin
-        if (employee.emp_access_level.toLowerCase() !== "admin") {
+        if (employee.emp_access_level !== "Admin") {
             return res.status(403).json({ message: "Access denied. Only admins can login." });
         }
 

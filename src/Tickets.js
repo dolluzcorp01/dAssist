@@ -215,8 +215,21 @@ const Tickets = () => {
             }
         }
 
+        // ✅ Append created_by as emp_id of logged-in employee
+        if (formData.emp_id) {
+            formDataToSend.append("created_by", formData.emp_id);
+        } else {
+            Swal.fire({
+                icon: "warning",
+                title: "Validation Error",
+                text: "Please select a valid employee email before submitting the ticket."
+            });
+            setIsSubmitting(false);
+            return;
+        }
+
         try {
-            const res = await fetch("http://localhost:5000/api/tickets/submit", {
+            const res = await apiFetch("/api/tickets/submit", {
                 method: "POST",
                 body: formDataToSend,
             });

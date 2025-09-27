@@ -19,12 +19,15 @@ app.use(cookieParser());
 // Routes
 const TictesRoutes = require('./src/backend_routes/Tickets_server');
 const LoginRoutes = require('./src/backend_routes/Login_server');
+const EmployeeRoutes = require('./src/backend_routes/Employee_server');
 
 app.use("/api/tickets", TictesRoutes);
-app.use("/api/Login_server", LoginRoutes);
+app.use("/api/login", LoginRoutes);
+app.use("/api/employee", EmployeeRoutes);
 
 // Serve uploaded files if needed
 app.use('/Tickets_file_uploads', express.static(path.join(__dirname, 'Tickets_file_uploads')));
+app.use('/User_profile_file_uploads', express.static(path.join(__dirname, 'User_profile_file_uploads')));
 
 app.listen(port, () => {
     console.log(`🚀 Server running at http://localhost:${port}`);

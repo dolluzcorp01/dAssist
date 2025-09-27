@@ -19,6 +19,38 @@ router.get("/employee/:email", (req, res) => {
     });
 });
 
+const profileUpload = multer({
+    storage: multer.diskStorage({
+        destination: (req, file, cb) => cb(null, "User_profile_file_uploads/"),
+        filename: (req, file, cb) => cb(null, Date.now() + "-" + file.originalname),
+    }),
+    limits: { fileSize: 10 * 1024 * 1024 }, // 10 MB max
+});
+
+router.post("/upload-profile/:empId", profileUpload.single("profile"), (req, res) => {
+    const empId = req.params.empId;
+    const profilePath = req.file ? req.file.path : null;
+
+    if (!profilePath) {
+        return res.status(400).json({ error: "No file uploaded" });
+    }
+
+    const updateQuery = `
+        UPDATE employee
+        SET emp_profile_img = ?
+        WHERE emp_id = ?
+    `;
+
+    db.query(updateQuery, [profilePath, empId], (err, result) => {
+        if (err) return res.status(500).json({ error: "Database error" });
+
+        return res.json({
+            message: "Profile image updated successfully",
+            profilePath,
+        });
+    });
+});
+
 // 🔹 Configure Nodemailer (use Gmail or company SMTP)
 const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
@@ -61,7 +93,7 @@ router.post("/submit", ticketUpload.single("attachment"), (req, res) => {
         data.subject,
         data.description,
         attachmentPath,
-        data.created_by || "System",
+        data.created_by,
     ], (err, result) => {
         if (err) return res.status(500).json({ error: "Database error" });
 
@@ -255,6 +287,5 @@ router.get("/ticket_history/:ticketId", (req, res) => {
         res.json(results);
     });
 });
-
 
 module.exports = router;

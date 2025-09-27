@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { apiFetch, API_BASE } from "./utils/api";
 import LOGO from "./assets/img/LOGO.png";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
@@ -33,7 +34,7 @@ function Login() {
 
         setLoading(true);
         try {
-            const res = await fetch("http://localhost:5000/api/Login_server/login", {
+            const res = await apiFetch("/api/login/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ username, password }),
@@ -49,7 +50,7 @@ function Login() {
             showToast("Login Successful! Redirecting...");
 
             setTimeout(() => {
-                navigate("/Ticket_dashboard");
+                navigate("/Support_Tickets");
             }, 1800);
         } catch (err) {
             Swal.fire({
