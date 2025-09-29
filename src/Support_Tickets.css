@@ -604,3 +604,11 @@ textarea {
 .swal2-container {
     z-index: 10000 !important;
 }
+
+.ticket-dashboard,
+.ticket-dashboard-container,
+.dashboard-content,
+.table-top-wrapper {
+    position: static;
+    z-index: auto !important;
+}

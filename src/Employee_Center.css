@@ -248,3 +248,11 @@
 .input-error {
     border-color: red !important;
 }
+
+.employee-dashboard,
+.employee-dashboard-container,
+.employee-dashboard-content,
+.table-top-wrapper {
+    position: static;
+    z-index: auto !important;
+}
