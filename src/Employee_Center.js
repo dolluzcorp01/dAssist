@@ -6,11 +6,13 @@ import Select, { components } from "react-select";
 import ExcelJS from "exceljs";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { useNavigate } from "react-router-dom";
 import { apiFetch, API_BASE } from "./utils/api";
 import LOGO from "./assets/img/LOGO.png";
 import "./Employee_Center.css";
 
 function Employee_Center() {
+    const navigate = useNavigate();
     const [employees, setEmployees] = useState([]);
     const [loading, setLoading] = useState(true);
     const [errors, setErrors] = useState({});
@@ -40,10 +42,30 @@ function Employee_Center() {
     useEffect(() => {
         if (empId && employees.length > 0) {
             const emp = employees.find(e => e.emp_id == empId);
-            if (emp) setLoggedInEmp(emp);
-            console.log("Logged in employee:", emp);
+            if (emp) {
+                setLoggedInEmp(emp);
+                if (emp.emp_access_level !== "Admin") {
+                    navigate("/login");
+                }
+            }
         }
     }, [empId, employees]);
+
+    const fetchEmployees = async () => {
+        try {
+            const res = await apiFetch(`/api/employee/all`);
+            const data = await res.json();
+            setEmployees(data);
+        } catch (err) {
+            console.error("Error fetching employees:", err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchEmployees();
+    }, []);
 
     const [formData, setFormData] = useState({
         emp_name: "",
@@ -163,22 +185,6 @@ function Employee_Center() {
         }
         return color;
     }
-
-    const fetchEmployees = async () => {
-        try {
-            const res = await apiFetch(`/api/employee/all`);
-            const data = await res.json();
-            setEmployees(data);
-        } catch (err) {
-            console.error("Error fetching employees:", err);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchEmployees();
-    }, []);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;

@@ -41,6 +41,15 @@ function TicketDashboard() {
     const modalRef = useRef(null);
     const fileInputRef = useRef(null);
     const [empId, setEmpId] = useState(null);
+    const [expandedComments, setExpandedComments] = useState({});
+    const [isClosed, setIsClosed] = useState(false);
+
+    const toggleExpand = (index) => {
+        setExpandedComments(prev => ({
+            ...prev,
+            [index]: !prev[index]
+        }));
+    };
 
     useEffect(() => {
         const id = localStorage.getItem("emp_id");
@@ -50,15 +59,75 @@ function TicketDashboard() {
     useEffect(() => {
         if (empId && employees.length > 0) {
             const emp = employees.find(e => e.emp_id == empId);
-            if (emp) setLoggedInEmp(emp);
-            console.log("Logged in employee:", emp);
+            if (emp) {
+                setLoggedInEmp(emp);
+                if (emp.emp_access_level !== "Admin") {
+                    navigate("/login");
+                }
+            }
         }
     }, [empId, employees]);
+
+    useEffect(() => {
+        if (selectedTicket) {
+            setTicketStatus(selectedTicket.ticket_status);
+
+            // ✅ Set isClosed based on ticket status
+            setIsClosed(selectedTicket.ticket_status === "Closed");
+
+            // Optional: reset comments and statusSaved
+            setComments("");
+            setStatusSaved(false);
+            setExpandedComments([]);
+
+            // Fetch history
+            fetchHistory(selectedTicket.ticket_id);
+        }
+    }, [selectedTicket]);
+
+    const fetchEmployees = async () => {
+        try {
+            const res = await apiFetch(`/api/employee/all`);
+            const data = await res.json();
+            setEmployees(data);
+        } catch (err) {
+            console.error("Error fetching employees:", err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchTickets = async () => {
+        try {
+            const res = await apiFetch(`/api/tickets/all`);
+            const data = await res.json();
+            setTickets(data);
+        } catch (err) {
+            console.error("Error fetching tickets:", err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchHistory = async (ticketId) => {
+        try {
+            const res = await apiFetch(`/api/tickets/ticket_history/${ticketId}`);
+            const data = await res.json();
+            setHistory(data);
+            console.log("History data:", data);
+        } catch (err) {
+            console.error("Error fetching history:", err);
+        }
+    };
+
+    useEffect(() => {
+        fetchEmployees();
+        fetchTickets();
+    }, [navigate]);
 
     const handleFileChange = (e) => {
         if (e.target.files[0]) setSelectedFile(e.target.files[0]);
     };
-
 
     const handleSaveProfileImage = async () => {
         if (!selectedFile) {
@@ -121,18 +190,6 @@ function TicketDashboard() {
         return color;
     }
 
-    const fetchEmployees = async () => {
-        try {
-            const res = await apiFetch(`/api/employee/all`);
-            const data = await res.json();
-            setEmployees(data);
-        } catch (err) {
-            console.error("Error fetching employees:", err);
-        } finally {
-            setLoading(false);
-        }
-    };
-
     useEffect(() => {
         const handleOutsideClick = (e) => {
             // Close Status Menu
@@ -157,38 +214,6 @@ function TicketDashboard() {
             document.removeEventListener("mousedown", handleOutsideClick);
         };
     }, [isModalOpen]);
-
-    const fetchTickets = async () => {
-        try {
-            const res = await apiFetch(`/api/tickets/all`);
-            const data = await res.json();
-            setTickets(data);
-        } catch (err) {
-            console.error("Error fetching tickets:", err);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const fetchHistory = async (ticketId) => {
-        try {
-            const res = await apiFetch(`/api/tickets/ticket_history/${ticketId}`);
-            const data = await res.json();
-            setHistory(data);
-        } catch (err) {
-            console.error("Error fetching history:", err);
-        }
-    };
-
-    useEffect(() => {
-        const accessLevel = localStorage.getItem("emp_access_level");
-        if (accessLevel !== "Admin") {
-            navigate("/login");
-            return;
-        }
-        fetchEmployees();
-        fetchTickets();
-    }, [navigate]);
 
     // Filter selector options
     const filterOptions = [
@@ -288,7 +313,6 @@ function TicketDashboard() {
         };
 
         try {
-            // Call backend to save status
             const res = await apiFetch("/api/tickets/save_status", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -296,15 +320,6 @@ function TicketDashboard() {
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.message || "Save failed");
-
-            // Update localStorage table
-            const localTickets = JSON.parse(localStorage.getItem("tickets") || "[]");
-            const ticketIndex = localTickets.findIndex(t => t.ticket_id === selectedTicket.ticket_id);
-            if (ticketIndex !== -1) {
-                localTickets[ticketIndex].ticket_status = ticketStatus;
-                localTickets[ticketIndex].ticket_comments = comments;
-            }
-            localStorage.setItem("tickets", JSON.stringify(localTickets));
 
             Swal.fire({
                 icon: "success",
@@ -314,6 +329,13 @@ function TicketDashboard() {
 
             setStatusSaved(true);
             fetchTickets();
+            fetchHistory(selectedTicket.ticket_id);
+            setComments("");
+
+            // ✅ Disable dropdown only if saved status is Closed
+            if (ticketStatus === "Closed") {
+                setIsClosed(true);
+            }
         } catch (err) {
             Swal.fire({
                 icon: "error",
@@ -950,15 +972,24 @@ function TicketDashboard() {
                                     <div className="status-dropdown-container" ref={dropdownRef} style={{ flex: 1 }}>
                                         <button
                                             className={`status-dropdown-button status-${ticketStatus.replace(/\s/g, '-')}`}
-                                            onClick={() => setShowStatusMenu(prev => !prev)}
+                                            onClick={() => !isClosed && setShowStatusMenu(prev => !prev)}
+                                            disabled={isClosed}
                                         >
                                             {ticketStatus} <span className="arrow">{showStatusMenu ? "▲" : "▼"}</span>
                                         </button>
 
-                                        {showStatusMenu && (
+                                        {showStatusMenu && !isClosed && (
                                             <div className="status-dropdown-menu">
-                                                {["Open", "In Review", "In Progress", "Action Pending", "Cancelled", "Resolved"]
-                                                    .filter(status => status !== ticketStatus)
+                                                {[
+                                                    "In Review",
+                                                    "In Progress",
+                                                    "Action Pending",
+                                                    "Resolved",
+                                                    "Reopen",
+                                                    "Cancelled",
+                                                    "Closed"
+                                                ]
+                                                    .filter(status => status !== ticketStatus && !(ticketStatus !== "Open" && status === "Open"))
                                                     .map(status => (
                                                         <div
                                                             key={status}
@@ -1025,21 +1056,43 @@ function TicketDashboard() {
                                     <h4 style={{ marginBottom: "15px" }}>History</h4>
                                     <div className="history-timeline">
                                         {history.length > 0 ? (
-                                            history.map((h, index) => (
-                                                <div
-                                                    key={index}
-                                                    className={`history-item status-${h.ticket_status.replace(/\s+/g, "-")}`}
-                                                >
-                                                    <div className="history-status">
-                                                        <span className="label">Status:</span> {h.ticket_status}
+                                            history.map((h, index) => {
+                                                const isExpanded = expandedComments[index];
+                                                const comment = h.ticket_comments || "";
+
+                                                return (
+                                                    <div
+                                                        key={index}
+                                                        className={`history-item status-${h.ticket_status.replace(/\s+/g, "-")}`}
+                                                    >
+                                                        <div className="history-status">
+                                                            <span className="label">Status:</span> {h.ticket_status}
+                                                        </div>
+
+                                                        <div className="history-meta">
+                                                            <span className="label">Updated By:</span> {h.emp_name}
+                                                            <span className="label">Time:</span>{" "}
+                                                            {new Date(h.updated_time).toLocaleString()}
+                                                        </div>
+
+                                                        {/* ✅ Comment Label + See More / See Less */}
+                                                        {comment && (
+                                                            <div className="history-meta" style={{ marginTop: "3px" }}>
+                                                                <span className="label">Comments:</span>
+                                                                {isExpanded ? comment : comment.slice(0, 50) + (comment.length > 50 ? "..." : "")}
+                                                                {comment.length > 50 && (
+                                                                    <span
+                                                                        onClick={() => toggleExpand(index)}
+                                                                        style={{ color: "#007bff", cursor: "pointer", marginLeft: "5px" }}
+                                                                    >
+                                                                        {isExpanded ? "See Less" : "See More"}
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        )}
                                                     </div>
-                                                    <div className="history-meta">
-                                                        <span className="label">Updated By:</span> {h.emp_name}
-                                                        <span className="label">Time:</span>{" "}
-                                                        {new Date(h.updated_time).toLocaleString()}
-                                                    </div>
-                                                </div>
-                                            ))
+                                                );
+                                            })
                                         ) : (
                                             <p>No history available.</p>
                                         )}

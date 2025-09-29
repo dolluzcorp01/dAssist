@@ -278,7 +278,6 @@
 }
 
 .ticket-dashboard>div:last-child button:disabled {
-    background: #a0c4f7;
     cursor: not-allowed;
 }
 
@@ -429,30 +428,50 @@
     color: #fff;
 }
 
-/* Color code for each status */
-/* Scoped only for dropdown */
+/* Open → Light Gray */
 .status-dropdown-container .status-Open {
-    background: #3498db;
+    background: #b0bec5;
+    /* Light Gray */
 }
 
+/* In Review */
 .status-dropdown-container .status-In-Review {
     background: #f1c40f;
 }
 
+/* In Progress */
 .status-dropdown-container .status-In-Progress {
     background: #9b59b6;
 }
 
+/* Action Pending */
 .status-dropdown-container .status-Action-Pending {
     background: #e67e22;
 }
 
+/* Resolved */
+.status-dropdown-container .status-Resolved {
+    background: #2ecc71;
+}
+
+/* ✅ Reopen → Blue */
+.status-dropdown-container .status-Reopen {
+    background: #007bff;
+}
+
+/* Cancelled */
 .status-dropdown-container .status-Cancelled {
     background: #e74c3c;
 }
 
-.status-dropdown-container .status-Resolved {
-    background: #2ecc71;
+/* ✅ Closed → Darker Green */
+.status-dropdown-container .status-Closed {
+    background: #1d6b26;
+}
+
+.status-dropdown-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
 .status-dropdown-item:hover {
@@ -505,6 +524,11 @@ textarea {
 .close-icon:hover {
     background: #cfcfcf;
     color: #000;
+}
+
+.history-comment {
+    font-size: 14px;
+    color: #555;
 }
 
 .history-timeline {

@@ -276,7 +276,7 @@ router.post("/send_status_mail", async (req, res) => {
 router.get("/ticket_history/:ticketId", (req, res) => {
     const { ticketId } = req.params;
     const query = `
-        SELECT h.ticket_status, e.emp_name, h.updated_time
+        SELECT h.ticket_status, h.ticket_comments, e.emp_name, h.updated_time
         FROM ticket_status_history h
         JOIN employee e ON h.updated_by = e.emp_id
         WHERE h.ticket_id = ?
