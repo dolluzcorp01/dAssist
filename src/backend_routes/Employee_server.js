@@ -2,7 +2,67 @@
 const express = require("express");
 const getDBConnection = require('../../config/db');
 const router = express.Router();
+const mysql = require("mysql2");
+const multer = require("multer");
+const fs = require("fs");
+const path = require("path");
+
 const db = getDBConnection('dassist');
+
+const profileUpload = multer({
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => cb(null, "User_profile_file_uploads/"),
+    filename: (req, file, cb) => {
+      const empId = req.params.empId;
+      const ext = path.extname(file.originalname);
+      cb(null, `${empId}-${Date.now()}${ext}`);
+    },
+  }),
+  limits: { fileSize: 10 * 1024 * 1024 },
+});
+
+router.post("/upload-profile/:empId", profileUpload.single("profile"), (req, res) => {
+  const empId = req.params.empId;
+  const uploadDir = "User_profile_file_uploads/";
+  const newFilePath = req.file ? req.file.path : null;
+
+  if (!newFilePath) {
+    return res.status(400).json({ error: "No file uploaded" });
+  }
+
+  // ✅ Delete old files of the same user
+  fs.readdir(uploadDir, (err, files) => {
+    if (err) return console.error("Error reading upload folder:", err);
+
+    files.forEach((file) => {
+      if (file.startsWith(empId + "-")) {
+        const oldFilePath = path.join(uploadDir, file);
+        if (oldFilePath !== newFilePath) {
+          fs.unlink(oldFilePath, (err) => {
+            if (err) console.error("Error deleting old file:", err);
+            else console.log("Deleted old profile:", oldFilePath);
+          });
+        }
+      }
+    });
+  });
+
+  // ✅ Update DB path
+  const updateQuery = `
+    UPDATE employee
+    SET emp_profile_img = ?
+    WHERE emp_id = ?
+  `;
+
+  db.query(updateQuery, [newFilePath, empId], (err) => {
+    if (err) return res.status(500).json({ error: "Database error" });
+
+    res.json({
+      message: "Profile image updated successfully",
+      profilePath: newFilePath,
+    });
+  });
+});
 
 // 🔹 Get all employees
 router.get("/all", (req, res) => {

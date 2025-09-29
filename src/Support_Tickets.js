@@ -125,8 +125,26 @@ function TicketDashboard() {
         fetchTickets();
     }, [navigate]);
 
+    const MAX_FILE_SIZE = 0.5 * 1024 * 1024; // 0.5 MB in bytes
+
     const handleFileChange = (e) => {
-        if (e.target.files[0]) setSelectedFile(e.target.files[0]);
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // ✅ Check file size
+        if (file.size > MAX_FILE_SIZE) {
+            Swal.fire({
+                icon: "warning",
+                title: "File Too Large",
+                text: "Please select an image smaller than 0.5 MB.",
+            });
+            // Reset selected file and input
+            setSelectedFile(null);
+            if (fileInputRef.current) fileInputRef.current.value = "";
+            return;
+        }
+
+        setSelectedFile(file);
     };
 
     const handleSaveProfileImage = async () => {
@@ -139,11 +157,21 @@ function TicketDashboard() {
             return;
         }
 
+        // ✅ Optional: double-check file size before sending
+        if (selectedFile.size > MAX_FILE_SIZE) {
+            Swal.fire({
+                icon: "warning",
+                title: "File Too Large",
+                text: "Please select an image smaller than 0.5 MB.",
+            });
+            return;
+        }
+
         const formDataToSend = new FormData();
         formDataToSend.append("profile", selectedFile);
 
         try {
-            const res = await apiFetch(`/api/tickets/upload-profile/${empId}`, {
+            const res = await apiFetch(`/api/employee/upload-profile/${empId}`, {
                 method: "POST",
                 body: formDataToSend,
             });
@@ -158,13 +186,10 @@ function TicketDashboard() {
                 text: "Your profile image has been updated successfully!",
             });
 
-            // Update the loggedInEmp state to reflect new image
-            setLoggedInEmp(prev => ({
-                ...prev,
-                emp_profile_img: data.profilePath,
-            }));
+            // Update logged in user state
+            setLoggedInEmp(prev => ({ ...prev, emp_profile_img: data.profilePath }));
 
-            // Reset selected file
+            // Reset file input
             setSelectedFile(null);
             if (fileInputRef.current) fileInputRef.current.value = null;
 
