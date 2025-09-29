@@ -15,8 +15,7 @@ import {
 import LOGO from "./assets/img/LOGO.png";
 import "./left_navbar.css";
 
-function LeftNavbar() {
-    const [navSize, setNavSize] = useState("full");
+function LeftNavbar({ navSize, setNavSize }) {
     const [dropdownOpen, setDropdownOpen] = useState(false);
 
     const handleNavSizeChange = (size) => {

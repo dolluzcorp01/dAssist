@@ -12,6 +12,7 @@ import LeftNavbar from "./left_navbar";
 import "./Support_Tickets.css";
 
 function TicketDashboard() {
+    const [navSize, setNavSize] = useState("full");
     const navigate = useNavigate();
     const [tickets, setTickets] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -584,18 +585,192 @@ function TicketDashboard() {
 
     return (
         <div className="ticket-dashboard-container">
-            <LeftNavbar />
-            <div className="ticket-dashboard">
-                <h2 style={{ marginLeft: "30px", marginBottom: "-10px", marginTop: "10px", position: "relative" }}>
-                    <a className="navbar-brand" href="#">
-                        <img
-                            src={LOGO}
-                            alt="dassist Logo"
-                            style={{ height: "60px", objectFit: "contain", marginLeft: "-20px", marginRight: "-20px" }}
-                        />
-                    </a>
-                    Support Tickets
-                </h2>
+            <LeftNavbar navSize={navSize} setNavSize={setNavSize} />
+            <div className={`ticket-dashboard ${navSize}`}>
+                <div className="header-wrapper">
+                    <h2>
+                        <a className="navbar-brand" href="#">
+                            <img
+                                src={LOGO}
+                                alt="dassist Logo"
+                                style={{
+                                    height: "60px",
+                                    objectFit: "contain",
+                                    marginLeft: "-20px",
+                                    marginRight: "-20px",
+                                }}
+                            />
+                        </a>
+                        Support Tickets
+                    </h2>
+
+                    {/* Employee Circle */}
+                    {loggedInEmp && (
+                        <div className="emp-circle-container" ref={empDropdownRef}>
+                            <div
+                                className="emp-circle"
+                                onClick={() => setShowEmpMenu(!showEmpMenu)}
+                                style={{
+                                    backgroundColor: loggedInEmp.emp_profile_img ? "transparent" : stringToColor(loggedInEmp.emp_name),
+                                    color: "#fff",
+                                    fontWeight: "bold",
+                                    fontSize: "18px",
+                                    width: "40px",
+                                    height: "40px",
+                                    borderRadius: "50%",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    cursor: "pointer",
+                                    overflow: "hidden",
+                                }}
+                            >
+                                {loggedInEmp.emp_profile_img ? (
+                                    <img
+                                        src={`${API_BASE}/${loggedInEmp.emp_profile_img.replace(/\\/g, "/")}`}
+                                        alt="Profile"
+                                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                                    />
+                                ) : (
+                                    loggedInEmp.emp_name.charAt(0).toUpperCase()
+                                )}
+                            </div>
+
+                            {showEmpMenu && (
+                                <div className="emp-dropdown">
+                                    {/* Profile Info */}
+                                    <div className="emp-profile">
+                                        <div
+                                            className="emp-profile-circle"
+                                            style={{
+                                                backgroundColor: loggedInEmp.emp_profile_img ? "transparent" : stringToColor(loggedInEmp.emp_name),
+                                                color: "#fff",
+                                                fontWeight: "bold",
+                                                fontSize: "18px",
+                                                width: "40px",
+                                                height: "40px",
+                                                borderRadius: "50%",
+                                                display: "flex",
+                                                alignItems: "center",
+                                                justifyContent: "center",
+                                                cursor: "pointer",
+                                                overflow: "hidden",
+                                            }}
+                                            onMouseEnter={() => setIsDropdownHovered(true)}
+                                            onMouseLeave={() => setIsDropdownHovered(false)}
+                                            onClick={() => setIsModalOpen(true)}
+                                        >
+                                            {loggedInEmp.emp_profile_img ? (
+                                                <img
+                                                    src={`${API_BASE}/${loggedInEmp.emp_profile_img.replace(/\\/g, "/")}`}
+                                                    alt="Profile"
+                                                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                                                />
+                                            ) : (
+                                                isDropdownHovered ? <FaCamera color="white" /> : loggedInEmp.emp_name.charAt(0).toUpperCase()
+                                            )}
+                                        </div>
+
+                                        <div className="emp-profile-text">
+                                            <div className="emp-name">{loggedInEmp.emp_name}</div>
+                                            <div className="emp-org" style={{ fontStyle: "italic" }}>
+                                                Your Form, Your Space
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Dropdown actions */}
+                                    <button
+                                        onClick={() => alert("Change Password clicked")}
+                                        className="emp-dropdown-btn"
+                                    >
+                                        Change Password
+                                    </button>
+                                    <button
+                                        onClick={() => { localStorage.clear(); window.location.reload(); }}
+                                        className="emp-dropdown-btn logout-btn"
+                                    >
+                                        Logout
+                                    </button>
+                                </div>
+                            )}
+
+                            {isModalOpen && (
+                                <div className="profile-modal-overlay">
+                                    <div className="profile-modal" ref={modalRef}>
+                                        <button
+                                            className="profile-modal-close"
+                                            onClick={() => setIsModalOpen(false)}
+                                        >
+                                            ✖
+                                        </button>
+
+                                        <h3 className="profile-modal-title">Update Profile Image</h3>
+
+                                        <div style={{ display: 'flex', justifyContent: 'center', margin: '20px 0' }}>
+                                            {selectedFile ? (
+                                                <img
+                                                    src={URL.createObjectURL(selectedFile)}
+                                                    alt="Preview"
+                                                    className="profile-image-preview"
+                                                />
+                                            ) : (
+                                                <FaCamera size={60} color="#555" />
+                                            )}
+                                        </div>
+
+                                        <div style={{ position: "relative", width: "100%" }}>
+                                            <input
+                                                ref={fileInputRef}
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={handleFileChange}
+                                                style={{ width: "100%", paddingRight: selectedFile ? "30px" : "0" }}
+                                            />
+
+                                            {selectedFile && (
+                                                <span
+                                                    onClick={() => {
+                                                        setSelectedFile(null);
+                                                        if (fileInputRef.current) {
+                                                            fileInputRef.current.value = "";
+                                                        }
+                                                    }}
+                                                    style={{
+                                                        position: "absolute",
+                                                        right: "8px",
+                                                        top: "50%",
+                                                        transform: "translateY(-50%)",
+                                                        cursor: "pointer",
+                                                        fontSize: "16px",
+                                                        color: "#888",
+                                                    }}
+                                                >
+                                                    ✖
+                                                </span>
+                                            )}
+                                        </div>
+
+                                        <div className="profile-modal-buttons">
+                                            <button
+                                                className="profile-modal-save"
+                                                onClick={handleSaveProfileImage}
+                                                disabled={!selectedFile}
+                                                style={{
+                                                    cursor: selectedFile ? "pointer" : "not-allowed",
+                                                    opacity: selectedFile ? 1 : 0.5
+                                                }}
+                                            >
+                                                Save
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                        </div>
+                    )}
+                </div>
 
                 {/* Shared container */}
                 <div className="dashboard-content">
@@ -660,175 +835,7 @@ function TicketDashboard() {
                             />
                         </div>
                     </div>
-
                     <div className="table-top-wrapper">
-                        {/* Employee Circle */}
-                        {loggedInEmp && (
-                            <div className="emp-circle-container" ref={empDropdownRef}>
-                                <div
-                                    className="emp-circle"
-                                    onClick={() => setShowEmpMenu(!showEmpMenu)}
-                                    style={{
-                                        backgroundColor: loggedInEmp.emp_profile_img ? "transparent" : stringToColor(loggedInEmp.emp_name),
-                                        color: "#fff",
-                                        fontWeight: "bold",
-                                        fontSize: "18px",
-                                        width: "40px",
-                                        height: "40px",
-                                        borderRadius: "50%",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        cursor: "pointer",
-                                        overflow: "hidden",
-                                    }}
-                                >
-                                    {loggedInEmp.emp_profile_img ? (
-                                        <img
-                                            src={`${API_BASE}/${loggedInEmp.emp_profile_img.replace(/\\/g, "/")}`}
-                                            alt="Profile"
-                                            style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                                        />
-                                    ) : (
-                                        loggedInEmp.emp_name.charAt(0).toUpperCase()
-                                    )}
-                                </div>
-
-                                {showEmpMenu && (
-                                    <div className="emp-dropdown">
-                                        {/* Profile Info */}
-                                        <div className="emp-profile">
-                                            <div
-                                                className="emp-profile-circle"
-                                                style={{
-                                                    backgroundColor: loggedInEmp.emp_profile_img ? "transparent" : stringToColor(loggedInEmp.emp_name),
-                                                    color: "#fff",
-                                                    fontWeight: "bold",
-                                                    fontSize: "18px",
-                                                    width: "40px",
-                                                    height: "40px",
-                                                    borderRadius: "50%",
-                                                    display: "flex",
-                                                    alignItems: "center",
-                                                    justifyContent: "center",
-                                                    cursor: "pointer",
-                                                    overflow: "hidden",
-                                                }}
-                                                onMouseEnter={() => setIsDropdownHovered(true)}
-                                                onMouseLeave={() => setIsDropdownHovered(false)}
-                                                onClick={() => setIsModalOpen(true)}
-                                            >
-                                                {loggedInEmp.emp_profile_img ? (
-                                                    <img
-                                                        src={`${API_BASE}/${loggedInEmp.emp_profile_img.replace(/\\/g, "/")}`}
-                                                        alt="Profile"
-                                                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                                                    />
-                                                ) : (
-                                                    isDropdownHovered ? <FaCamera color="white" /> : loggedInEmp.emp_name.charAt(0).toUpperCase()
-                                                )}
-                                            </div>
-
-                                            <div className="emp-profile-text">
-                                                <div className="emp-name">{loggedInEmp.emp_name}</div>
-                                                <div className="emp-org" style={{ fontStyle: "italic" }}>
-                                                    Your Form, Your Space
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* Dropdown actions */}
-                                        <button
-                                            onClick={() => alert("Change Password clicked")}
-                                            className="emp-dropdown-btn"
-                                        >
-                                            Change Password
-                                        </button>
-                                        <button
-                                            onClick={() => { localStorage.clear(); window.location.reload(); }}
-                                            className="emp-dropdown-btn logout-btn"
-                                        >
-                                            Logout
-                                        </button>
-                                    </div>
-                                )}
-
-                                {isModalOpen && (
-                                    <div className="profile-modal-overlay">
-                                        <div className="profile-modal" ref={modalRef}>
-                                            <button
-                                                className="profile-modal-close"
-                                                onClick={() => setIsModalOpen(false)}
-                                            >
-                                                ✖
-                                            </button>
-
-                                            <h3 className="profile-modal-title">Update Profile Image</h3>
-
-                                            <div style={{ display: 'flex', justifyContent: 'center', margin: '20px 0' }}>
-                                                {selectedFile ? (
-                                                    <img
-                                                        src={URL.createObjectURL(selectedFile)}
-                                                        alt="Preview"
-                                                        className="profile-image-preview"
-                                                    />
-                                                ) : (
-                                                    <FaCamera size={60} color="#555" />
-                                                )}
-                                            </div>
-
-                                            <div style={{ position: "relative", width: "100%" }}>
-                                                <input
-                                                    ref={fileInputRef}
-                                                    type="file"
-                                                    accept="image/*"
-                                                    onChange={handleFileChange}
-                                                    style={{ width: "100%", paddingRight: selectedFile ? "30px" : "0" }}
-                                                />
-
-                                                {selectedFile && (
-                                                    <span
-                                                        onClick={() => {
-                                                            setSelectedFile(null);
-                                                            if (fileInputRef.current) {
-                                                                fileInputRef.current.value = "";
-                                                            }
-                                                        }}
-                                                        style={{
-                                                            position: "absolute",
-                                                            right: "8px",
-                                                            top: "50%",
-                                                            transform: "translateY(-50%)",
-                                                            cursor: "pointer",
-                                                            fontSize: "16px",
-                                                            color: "#888",
-                                                        }}
-                                                    >
-                                                        ✖
-                                                    </span>
-                                                )}
-                                            </div>
-
-                                            <div className="profile-modal-buttons">
-                                                <button
-                                                    className="profile-modal-save"
-                                                    onClick={handleSaveProfileImage}
-                                                    disabled={!selectedFile}
-                                                    style={{
-                                                        cursor: selectedFile ? "pointer" : "not-allowed",
-                                                        opacity: selectedFile ? 1 : 0.5
-                                                    }}
-                                                >
-                                                    Save
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-
-                            </div>
-                        )}
-
                         <div className="table-wrapper">
                             <table className="ticket-table">
                                 <thead>

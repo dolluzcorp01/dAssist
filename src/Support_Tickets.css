@@ -1,15 +1,57 @@
 .ticket-dashboard-container {
     display: flex;
+    min-height: 100vh;
 }
 
+/* Sidebar stays fixed */
+.left-navbar {
+    flex-shrink: 0;
+}
+
+/* Dashboard takes remaining width */
 .ticket-dashboard {
-    margin-left: 220px;
     flex: 1;
-    min-height: 100vh;
     padding: 10px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    min-height: 100vh;
     background: #f4f6f8;
+    transition: all 0.3s ease;
+    overflow-x: hidden;
+}
+
+/* Different navbar states adjust padding-left */
+.ticket-dashboard.full {
+    padding-left: 230px;
+}
+
+.ticket-dashboard.icon-only {
+    padding-left: 50px;
+}
+
+.ticket-dashboard.hidden {
+    padding-left: 10px;
+}
+
+/* Table content */
+.dashboard-content {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+/* Table wrapper enables horizontal scrolling */
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.ticket-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    table-layout: auto;
+    white-space: nowrap;
 }
 
 .ticket-dashboard h2 {
@@ -24,15 +66,33 @@
     font-weight: 700;
 }
 
-.table-top-wrapper {
+.header-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 10px 30px -10px 30px;
     position: relative;
 }
 
 .emp-circle-container {
-    position: absolute;
-    top: -20%;
-    right: 10px;
+    position: relative;
+    right: 0;
+    top: 0;
     z-index: 10;
+}
+
+.emp-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #3498db;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
 }
 
 .emp-circle {
@@ -187,14 +247,6 @@
     min-width: 220px;
 }
 
-/* Shared container for filters + table */
-.dashboard-content {
-    width: 85%;
-    max-width: 95%;
-    margin: 0 auto;
-    margin-left: 30px;
-}
-
 /* Filters container spans full width */
 .filters-container {
     display: flex;
@@ -219,21 +271,8 @@
     margin-left: 5px;
 }
 
-/* Table wrapper matches too */
-.table-wrapper {
-    width: 100% !important;
-    overflow-x: auto;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
-    border-radius: 12px;
-    background: #fff;
-    padding: 10px;
-}
-
-/* Table styling */
-.ticket-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 14px;
+.table-top-wrapper {
+    position: relative;
 }
 
 .ticket-table th {
