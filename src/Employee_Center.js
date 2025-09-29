@@ -259,15 +259,7 @@ function Employee_Center() {
             return;
         }
 
-        // 4️⃣ Account Password
-        if (!formData.account_pass) {
-            newErrors.account_pass = true;
-            setErrors(newErrors);
-            Swal.fire("Validation Error", "Account Password is required", "error");
-            return;
-        }
-
-        // 5️⃣ Department
+        // 4️⃣ Department
         if (!formData.emp_department) {
             newErrors.emp_department = true;
             setErrors(newErrors);
@@ -275,7 +267,7 @@ function Employee_Center() {
             return;
         }
 
-        // 6️⃣ Employee Type
+        // 5️⃣ Employee Type
         if (!formData.emp_type) {
             newErrors.emp_type = true;
             setErrors(newErrors);
@@ -283,7 +275,7 @@ function Employee_Center() {
             return;
         }
 
-        // 7️⃣ Location
+        // 6️⃣ Location
         if (!formData.emp_location) {
             newErrors.emp_location = true;
             setErrors(newErrors);
@@ -291,7 +283,7 @@ function Employee_Center() {
             return;
         }
 
-        // 8️⃣ Access Level
+        // 7️⃣ Access Level
         if (!formData.emp_access_level) {
             newErrors.emp_access_level = true;
             setErrors(newErrors);
@@ -299,7 +291,15 @@ function Employee_Center() {
             return;
         }
 
-        // ✅ If all validations pass
+        // 8️⃣ Account Password (only for Admin)
+        if (formData.emp_access_level === "Admin" && !formData.account_pass) {
+            newErrors.account_pass = true;
+            setErrors(newErrors);
+            Swal.fire("Validation Error", "Account Password is required for Admin", "error");
+            return;
+        }
+
+        // ✅ All validations pass
         setErrors({}); // clear errors
 
         const loggedInEmpId = localStorage.getItem("emp_id");
@@ -835,24 +835,12 @@ function Employee_Center() {
                                     <input type="text" name="emp_mobile_no" maxLength={10} value={formData.emp_mobile_no} onChange={handleInputChange} className={errors.emp_mobile_no ? "input-error" : ""} placeholder="10-digit mobile" />
                                 </div>
 
-                                {/* Row 2 */}
-                                <div className="field-group password-field">
-                                    <label>Account Password <span className="required">*</span></label>
-                                    <div className="password-input-wrapper">
-                                        <input
-                                            type={showPassword ? "text" : "password"}
-                                            name="account_pass"
-                                            value={formData.account_pass}
-                                            onChange={handleInputChange}
-                                            className={errors.account_pass ? "input-error" : ""}
-                                        />
-                                        <span
-                                            className="password-toggle-icon"
-                                            onClick={() => setShowPassword(!showPassword)}
-                                        >
-                                            <i className={`fa-solid ${showPassword ? "fa-eye" : "fa-eye-slash"}`}></i>
-                                        </span>
-                                    </div>
+                                <div className="field-group">
+                                    <label>Location <span className="required">*</span></label>
+                                    <select name="emp_location" value={formData.emp_location} onChange={handleInputChange} className={errors.emp_location ? "input-error" : ""}>
+                                        <option value="">Select Location</option>
+                                        {locations.map(l => <option key={l} value={l}>{l}</option>)}
+                                    </select>
                                 </div>
 
                                 <div className="field-group">
@@ -873,20 +861,34 @@ function Employee_Center() {
 
                                 {/* Row 3 */}
                                 <div className="field-group">
-                                    <label>Location <span className="required">*</span></label>
-                                    <select name="emp_location" value={formData.emp_location} onChange={handleInputChange} className={errors.emp_location ? "input-error" : ""}>
-                                        <option value="">Select Location</option>
-                                        {locations.map(l => <option key={l} value={l}>{l}</option>)}
-                                    </select>
-                                </div>
-
-                                <div className="field-group">
                                     <label>Access Level <span className="required">*</span></label>
                                     <select name="emp_access_level" value={formData.emp_access_level} onChange={handleInputChange} className={errors.emp_access_level ? "input-error" : ""}>
                                         <option value="">Select Access Level</option>
                                         {accessLevels.map(a => <option key={a} value={a}>{a}</option>)}
                                     </select>
                                 </div>
+
+                                {/* Account Password - only for Admin */}
+                                {formData.emp_access_level === "Admin" && (
+                                    <div className="field-group password-field">
+                                        <label>Account Password <span className="required">*</span></label>
+                                        <div className="password-input-wrapper">
+                                            <input
+                                                type={showPassword ? "text" : "password"}
+                                                name="account_pass"
+                                                value={formData.account_pass}
+                                                onChange={handleInputChange}
+                                                className={errors.account_pass ? "input-error" : ""}
+                                            />
+                                            <span
+                                                className="password-toggle-icon"
+                                                onClick={() => setShowPassword(!showPassword)}
+                                            >
+                                                <i className={`fa-solid ${showPassword ? "fa-eye" : "fa-eye-slash"}`}></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                             {/* Action buttons */}
                             <div className="modal-actions">
