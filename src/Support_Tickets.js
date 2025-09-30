@@ -960,38 +960,20 @@ function TicketDashboard() {
 
                             {/* Left panel */}
                             <div className="modal-left">
-                                <h3 style={{ marginBottom: "15px", color: "#333" }}>Ticket Details</h3>
-                                <div className="ticket-detail-list">
-                                    <div className="detail-item">
-                                        <span className="label">Employee:</span>
-                                        <span className="value">{selectedTicket.emp_name}</span>
-                                    </div>
-                                    <div className="detail-item">
-                                        <span className="label">Email:</span>
-                                        <span className="value">{selectedTicket.emp_mail_id}</span>
-                                    </div>
-                                    <div className="detail-item">
-                                        <span className="label">Department:</span>
-                                        <span className="value">{selectedTicket.emp_department}</span>
-                                    </div>
-                                    <div className="detail-item">
-                                        <span className="label">Category:</span>
-                                        <span className="value">{selectedTicket.category}</span>
-                                    </div>
-                                    <div className="detail-item">
-                                        <span className="label">Priority:</span>
-                                        <span className="value priority">{selectedTicket.priority_level}</span>
-                                    </div>
-                                    <div className="detail-item">
-                                        <span className="label">Contact:</span>
-                                        <span className="value">{selectedTicket.contact_method}</span>
-                                    </div>
-                                    <div className="detail-item">
-                                        <span className="label">Subject:</span>
+                                <h3 style={{ marginBottom: "20px" }}>Ticket Details</h3>
+                                <div className="ticket-detail-grid">
+                                    <div className="detail-card"><span className="label">Employee</span><span className="value">{selectedTicket.emp_name}</span></div>
+                                    <div className="detail-card"><span className="label">Email</span><span className="value">{selectedTicket.emp_mail_id}</span></div>
+                                    <div className="detail-card"><span className="label">Department</span><span className="value">{selectedTicket.emp_department}</span></div>
+                                    <div className="detail-card"><span className="label">Priority</span><span className="value priority">{selectedTicket.priority_level}</span></div>
+                                    <div className="detail-card"><span className="label">Contact Method</span><span className="value">{selectedTicket.contact_method}</span></div>
+                                    <div className="detail-card"><span className="label">Category</span><span className="value">{selectedTicket.category}</span></div>
+                                    <div className="detail-card" style={{ gridColumn: "span 2" }}>
+                                        <span className="label">Subject</span>
                                         <span className="value">{selectedTicket.subject}</span>
                                     </div>
-                                    <div className="detail-item">
-                                        <span className="label">Description:</span>
+                                    <div className="detail-card" style={{ gridColumn: "span 2" }}>
+                                        <span className="label">Description</span>
                                         <span className="value description">{selectedTicket.description}</span>
                                     </div>
                                 </div>
@@ -1099,8 +1081,8 @@ function TicketDashboard() {
                                                     <div
                                                         key={index}
                                                         className={`history-item ${h.ticket_status
-                                                                ? `status-${h.ticket_status.replace(/\s+/g, "-")}`
-                                                                : 'status-comment'
+                                                            ? `status-${h.ticket_status.replace(/\s+/g, "-")}`
+                                                            : 'status-comment'
                                                             }`}
                                                     >
                                                         {/* ✅ STATUS BLOCK (Show only if status exists) */}
