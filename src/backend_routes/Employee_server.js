@@ -40,7 +40,6 @@ router.post("/upload-profile/:empId", profileUpload.single("profile"), (req, res
         if (oldFilePath !== newFilePath) {
           fs.unlink(oldFilePath, (err) => {
             if (err) console.error("Error deleting old file:", err);
-            else console.log("Deleted old profile:", oldFilePath);
           });
         }
       }

@@ -640,6 +640,10 @@ textarea {
     background: #2ecc71;
 }
 
+.status-comment::before {
+    background: #7f8c8d;
+}
+
 .swal2-container {
     z-index: 10000 !important;
 }

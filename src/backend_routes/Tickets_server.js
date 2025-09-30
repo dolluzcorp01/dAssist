@@ -98,7 +98,6 @@ router.post("/submit", ticketUpload.single("attachment"), (req, res) => {
 
             try {
                 await transporter.sendMail(mailOptions);
-                console.log("✅ Ticket submission email sent");
             } catch (emailErr) {
                 console.error("❌ Error sending ticket email:", emailErr);
             }
@@ -141,37 +140,51 @@ router.get("/all", (req, res) => {
     });
 });
 
-// POST /api/tickets/save_status
 router.post("/save_status", (req, res) => {
-    const { ticket_id, ticket_status, ticket_comments, updated_by } = req.body;
+    const { ticket_id, ticket_status, ticket_comments, updated_by, prev_status } = req.body;
 
-    if (!ticket_id || !ticket_status || !updated_by) {
+    if (!ticket_id || !updated_by) {
         return res.status(400).json({ message: "Missing required fields" });
     }
 
-    // 1️⃣ Insert into ticket_status_history
-    const insertHistoryQuery = `
-        INSERT INTO ticket_status_history 
-        (ticket_id, ticket_status, ticket_comments, updated_by) 
-        VALUES (?, ?, ?, ?)
-    `;
+    let statusChanged = ticket_status && ticket_status !== prev_status;
+    let commentAdded = ticket_comments && ticket_comments.trim() !== "";
 
-    db.query(insertHistoryQuery, [ticket_id, ticket_status, ticket_comments, updated_by], (err, result) => {
-        if (err) return res.status(500).json({ message: "Database error on history insert", error: err });
+    if (!statusChanged && !commentAdded) {
+        return res.status(400).json({ message: "No status or comments to save" });
+    }
 
-        // 2️⃣ Update tickets_entry with the latest status
-        const updateTicketQuery = `
-            UPDATE tickets_entry
-            SET ticket_status = ?
-            WHERE ticket_id = ?
-        `;
+    // Insert Status Change
+    const insertStatus = statusChanged ? new Promise((resolve, reject) => {
+        db.query(
+            `INSERT INTO ticket_status_history (ticket_id, ticket_status, updated_by) VALUES (?, ?, ?)`,
+            [ticket_id, ticket_status, updated_by],
+            (err) => err ? reject(err) : resolve()
+        );
+    }) : Promise.resolve();
 
-        db.query(updateTicketQuery, [ticket_status, ticket_id], (err2, result2) => {
-            if (err2) return res.status(500).json({ message: "Database error on ticket update", error: err2 });
+    // Insert Comment
+    const insertComment = commentAdded ? new Promise((resolve, reject) => {
+        db.query(
+            `INSERT INTO ticket_comment_history (ticket_id, ticket_comments, added_by) VALUES (?, ?, ?)`,
+            [ticket_id, ticket_comments, updated_by],
+            (err) => err ? reject(err) : resolve()
+        );
+    }) : Promise.resolve();
 
-            res.json({ message: "Ticket status saved and ticket updated successfully" });
-        });
-    });
+    Promise.all([insertStatus, insertComment])
+        .then(() => {
+            if (statusChanged) {
+                db.query(
+                    `UPDATE tickets_entry SET ticket_status = ? WHERE ticket_id = ?`,
+                    [ticket_status, ticket_id],
+                    () => res.json({ message: "Saved successfully" })
+                );
+            } else {
+                res.json({ message: "Comment saved successfully" });
+            }
+        })
+        .catch(err => res.status(500).json({ message: "Database error", error: err }));
 });
 
 // POST /api/tickets/send_status_mail
@@ -186,7 +199,6 @@ router.post("/send_status_mail", async (req, res) => {
         JOIN employee e ON t.emp_id = e.emp_id
         WHERE t.ticket_id = ?
     `;
-
     db.query(ticketQuery, [ticket_id], (err, ticketResults) => {
         if (err) return res.status(500).json({ message: "DB error fetching ticket", error: err });
         if (ticketResults.length === 0) return res.status(404).json({ message: "Ticket not found" });
@@ -194,48 +206,86 @@ router.post("/send_status_mail", async (req, res) => {
         const ticket = ticketResults[0];
 
         // 2️⃣ Get latest status and comment
-        const statusQuery = `
-            SELECT ticket_status, ticket_comments
+        const latestStatusQuery = `
+            SELECT ticket_status, updated_by, updated_time
             FROM ticket_status_history
             WHERE ticket_id = ?
             ORDER BY updated_time DESC
             LIMIT 1
         `;
 
-        db.query(statusQuery, [ticket_id], async (err2, statusResults) => {
+        const latestCommentQuery = `
+            SELECT ticket_comments, added_by, added_time
+            FROM ticket_comment_history
+            WHERE ticket_id = ?
+            ORDER BY added_time DESC
+            LIMIT 1
+        `;
+
+        db.query(latestStatusQuery, [ticket_id], (err2, statusResults) => {
             if (err2) return res.status(500).json({ message: "DB error fetching status", error: err2 });
+            const latestStatus = statusResults[0] || null;
 
-            const latest = statusResults[0] || { ticket_status: "Open", ticket_comments: "-" };
+            db.query(latestCommentQuery, [ticket_id], async (err3, commentResults) => {
+                if (err3) return res.status(500).json({ message: "DB error fetching comments", error: err3 });
+                const latestComment = commentResults[0] || null;
 
-            // 3️⃣ Send email
-            const mailOptions = {
-                from: '"Dolluz Support" <vv.pavithran12@gmail.com>',
-                to: ticket.emp_mail_id,
-                subject: `[Ticket ID: ${ticket.ticket_id}] - Update on Your Request`,
-                html: `
-                <div style="font-family: Arial, sans-serif; padding: 15px; border: 1px solid #ddd; border-radius: 8px;">
-                    <h2 style="color: #4A90E2;">Ticket Update Notification</h2>
-                    <p>Hello <strong>${ticket.emp_name}</strong>,</p>
-                    <p>Your ticket <strong>${ticket.ticket_id}</strong> regarding “<em>${ticket.subject}</em>” has an update.</p>
-                    <p><strong>Current Status:</strong> ${latest.ticket_status}</p>
-                    <p><strong>Latest Comment:</strong> ${latest.ticket_comments || "-"}</p>
-                    <br/>
-                    <p>For any concerns, please contact 
-                        <a href="mailto:info@dolluzcorp.com">info@dolluzcorp.com</a> with the Ticket ID in the subject line.
-                    </p>
-                    <br/>
-                    <p style="color: #888;">— Dolluz Support Team</p>
-                </div>
-                `,
-            };
+                // 3️⃣ Determine which update is latest
+                let statusToSend = null;
+                let commentToSend = null;
 
-            try {
-                await transporter.sendMail(mailOptions);
-                res.json({ message: "Status email sent successfully" });
-            } catch (emailErr) {
-                console.error("❌ Error sending email:", emailErr);
-                res.status(500).json({ message: "Failed to send email", error: emailErr });
-            }
+                if (latestStatus && latestComment) {
+                    const statusTime = new Date(latestStatus.updated_time).getTime();
+                    const commentTime = new Date(latestComment.added_time).getTime();
+
+                    if (statusTime > commentTime) {
+                        statusToSend = latestStatus.ticket_status;
+                    } else if (commentTime > statusTime) {
+                        commentToSend = latestComment.ticket_comments;
+                    } else {
+                        // both updated at same time
+                        statusToSend = latestStatus.ticket_status;
+                        commentToSend = latestComment.ticket_comments;
+                    }
+                } else if (latestStatus) {
+                    statusToSend = latestStatus.ticket_status;
+                } else if (latestComment) {
+                    commentToSend = latestComment.ticket_comments;
+                } else {
+                    return res.status(400).json({ message: "No updates found to send" });
+                }
+
+                // 4️⃣ Prepare email content
+                const mailOptions = {
+                    from: '"Dolluz Support" <vv.pavithran12@gmail.com>',
+                    to: ticket.emp_mail_id,
+                    subject: `[Ticket ID: ${ticket.ticket_id}] - Update on Your Request`,
+                    html: `
+                        <div style="font-family: Arial, sans-serif; padding: 15px; border: 1px solid #ddd; border-radius: 8px;">
+                            <h2 style="color: #4A90E2;">Ticket Update Notification</h2>
+                            <p>Hello <strong>${ticket.emp_name}</strong>,</p>
+                            <p>Your ticket <strong>${ticket.ticket_id}</strong> regarding “<em>${ticket.subject}</em>” has an update.</p>
+                            ${statusToSend ? `<p><strong>Current Status:</strong> ${statusToSend}</p>` : ''}
+                            ${commentToSend ? `<p><strong>Latest Comment:</strong> ${commentToSend}</p>` : ''}
+                            <br/>
+                            <p>For any concerns, please contact 
+                                <a href="mailto:info@dolluzcorp.com">info@dolluzcorp.com</a> with the Ticket ID in the subject line.
+                            </p>
+                            <br/>
+                            <p style="color: #888;">— Dolluz Support Team</p>
+                        </div>
+                    `,
+                };
+
+                // 5️⃣ Send email
+                try {
+                    await transporter.sendMail(mailOptions);
+                    res.json({ message: "Email sent successfully" });
+                } catch (emailErr) {
+                    console.error("❌ Error sending email:", emailErr);
+                    res.status(500).json({ message: "Failed to send email", error: emailErr });
+                }
+            });
         });
     });
 });
@@ -244,14 +294,35 @@ router.post("/send_status_mail", async (req, res) => {
 router.get("/ticket_history/:ticketId", (req, res) => {
     const { ticketId } = req.params;
     const query = `
-        SELECT h.ticket_status, h.ticket_comments, e.emp_name, h.updated_time
-        FROM ticket_status_history h
-        JOIN employee e ON h.updated_by = e.emp_id
-        WHERE h.ticket_id = ?
-        ORDER BY h.updated_time DESC
+        SELECT 
+            ticket_id,
+            ticket_status,
+            updated_by      AS status_updated_by,
+            updated_time    AS status_updated_time,
+            NULL            AS ticket_comments,
+            NULL            AS comment_added_by,
+            NULL            AS comments_added_time
+        FROM ticket_status_history
+        WHERE ticket_id = ?
+
+        UNION ALL
+
+        SELECT
+            ticket_id,
+            NULL            AS ticket_status,
+            NULL            AS status_updated_by,
+            NULL            AS status_updated_time,
+            ticket_comments,
+            added_by        AS comment_added_by,
+            added_time      AS comments_added_time
+        FROM ticket_comment_history
+        WHERE ticket_id = ?
+
+        ORDER BY 
+            COALESCE(status_updated_time, comments_added_time) ASC
     `;
-    db.query(query, [ticketId], (err, results) => {
-        if (err) return res.status(500).json({ error: "Database error" });
+    db.query(query, [ticketId, ticketId], (err, results) => {
+        if (err) return res.status(500).json({ error: "Database error", details: err });
         res.json(results);
     });
 });

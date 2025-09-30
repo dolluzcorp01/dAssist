@@ -99,7 +99,7 @@ function LeftNavbar({ navSize, setNavSize }) {
             {dropdownOpen && (
                 <div className="view-dropdown-menu">
                     <div className="view-dropdown-item" onClick={() => handleNavSizeChange("full")}>
-                        <FaGripLines /> Full
+                        <FaGripLines /> Full View
                     </div>
                     <div className="view-dropdown-item" onClick={() => handleNavSizeChange("icon-only")}>
                         <FaBars /> Icon Only

@@ -14,9 +14,8 @@ function getDBConnection(database) {
             database: database,  // ✅ Use the actual database name
             waitForConnections: true,
             queueLimit: 1000, // Limit waiting queries
+            multipleStatements: true,
         });
-
-        console.log(`🔗 Created new connection pool for database: ${database}`);
     }
     return pools[database];
 }

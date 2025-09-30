@@ -331,10 +331,14 @@ function TicketDashboard() {
     const saveTicketStatus = async () => {
         if (!selectedTicket) return;
 
+        const statusChanged = ticketStatus !== selectedTicket.ticket_status;
+        const commentAdded = comments.trim() !== "";
+
         const payload = {
             ticket_id: selectedTicket.ticket_id,
-            ticket_status: ticketStatus,
-            ticket_comments: comments,
+            ticket_status: statusChanged ? ticketStatus : null,
+            ticket_comments: commentAdded ? comments : null,
+            prev_status: selectedTicket.ticket_status,
             updated_by: localStorage.getItem("emp_id")
         };
 
@@ -350,7 +354,7 @@ function TicketDashboard() {
             Swal.fire({
                 icon: "success",
                 title: "Success",
-                text: "Ticket status updated successfully!"
+                text: data.message
             });
 
             setStatusSaved(true);
@@ -358,10 +362,7 @@ function TicketDashboard() {
             fetchHistory(selectedTicket.ticket_id);
             setComments("");
 
-            // ✅ Disable dropdown only if saved status is Closed
-            if (ticketStatus === "Closed") {
-                setIsClosed(true);
-            }
+            if (ticketStatus === "Closed") setIsClosed(true);
         } catch (err) {
             Swal.fire({
                 icon: "error",
@@ -1053,7 +1054,7 @@ function TicketDashboard() {
                                         className="send-mail-btn"
                                         style={{ backgroundColor: "#28a745" }}
                                         onClick={saveTicketStatus}
-                                        disabled={!isStatusChanged}
+                                        disabled={!(isStatusChanged || comments.trim() !== "")}
                                     >
                                         Save
                                     </button>
@@ -1090,29 +1091,40 @@ function TicketDashboard() {
                                         {history.length > 0 ? (
                                             history.map((h, index) => {
                                                 const isExpanded = expandedComments[index];
-                                                const comment = h.ticket_comments || "";
+                                                const isStatusOnly = h.ticket_status && !h.ticket_comments;
+                                                const isCommentOnly = h.ticket_comments && !h.ticket_status;
+                                                const hasBoth = h.ticket_status && h.ticket_comments; // In case future logic merges
 
                                                 return (
                                                     <div
                                                         key={index}
-                                                        className={`history-item status-${h.ticket_status.replace(/\s+/g, "-")}`}
+                                                        className={`history-item ${h.ticket_status
+                                                                ? `status-${h.ticket_status.replace(/\s+/g, "-")}`
+                                                                : 'status-comment'
+                                                            }`}
                                                     >
-                                                        <div className="history-status">
-                                                            <span className="label">Status:</span> {h.ticket_status}
-                                                        </div>
+                                                        {/* ✅ STATUS BLOCK (Show only if status exists) */}
+                                                        {h.ticket_status && (
+                                                            <div className="history-status">
+                                                                <span className="label">Status:</span> {h.ticket_status}
+                                                            </div>
+                                                        )}
 
-                                                        <div className="history-meta">
-                                                            <span className="label">Updated By:</span> {h.emp_name}
-                                                            <span className="label">Time:</span>{" "}
-                                                            {new Date(h.updated_time).toLocaleString()}
-                                                        </div>
+                                                        {/* ✅ STATUS META (Updated By + Time) */}
+                                                        {h.ticket_status && (
+                                                            <div className="history-meta">
+                                                                <span className="label">Updated By:</span> {h.status_updated_by}
+                                                                <span className="label">Time:</span>{" "}
+                                                                {new Date(h.status_updated_time).toLocaleString()}
+                                                            </div>
+                                                        )}
 
-                                                        {/* ✅ Comment Label + See More / See Less */}
-                                                        {comment && (
+                                                        {/* ✅ COMMENT BLOCK (Show only if comment exists) */}
+                                                        {h.ticket_comments && (
                                                             <div className="history-meta" style={{ marginTop: "3px" }}>
                                                                 <span className="label">Comments:</span>
-                                                                {isExpanded ? comment : comment.slice(0, 50) + (comment.length > 50 ? "..." : "")}
-                                                                {comment.length > 50 && (
+                                                                {isExpanded ? h.ticket_comments : h.ticket_comments.slice(0, 50) + (h.ticket_comments.length > 50 ? "..." : "")}
+                                                                {h.ticket_comments.length > 50 && (
                                                                     <span
                                                                         onClick={() => toggleExpand(index)}
                                                                         style={{ color: "#007bff", cursor: "pointer", marginLeft: "5px" }}
@@ -1120,6 +1132,15 @@ function TicketDashboard() {
                                                                         {isExpanded ? "See Less" : "See More"}
                                                                     </span>
                                                                 )}
+                                                            </div>
+                                                        )}
+
+                                                        {/* ✅ COMMENT META (Added By + Time) */}
+                                                        {h.ticket_comments && (
+                                                            <div className="history-meta">
+                                                                <span className="label">Added By:</span> {h.comment_added_by}
+                                                                <span className="label">Time:</span>{" "}
+                                                                {new Date(h.comments_added_time).toLocaleString()}
                                                             </div>
                                                         )}
                                                     </div>
