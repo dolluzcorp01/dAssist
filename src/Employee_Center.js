@@ -6,7 +6,7 @@ import Select, { components } from "react-select";
 import ExcelJS from "exceljs";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { apiFetch, API_BASE } from "./utils/api";
 import LOGO from "./assets/img/LOGO.png";
 import "./Employee_Center.css";
@@ -610,13 +610,16 @@ function Employee_Center() {
 
                                     {/* Dropdown actions */}
                                     <button
-                                        onClick={() => alert("Change Password clicked")}
+                                        onClick={() => navigate('/login?changePassword')}
                                         className="emp-dropdown-btn"
                                     >
                                         Change Password
                                     </button>
                                     <button
-                                        onClick={() => { localStorage.clear(); window.location.reload(); }}
+                                        onClick={() => {
+                                            localStorage.clear();
+                                            window.location.reload();
+                                        }}
                                         className="emp-dropdown-btn logout-btn"
                                     >
                                         Logout

@@ -682,13 +682,16 @@ function TicketDashboard() {
 
                                     {/* Dropdown actions */}
                                     <button
-                                        onClick={() => alert("Change Password clicked")}
+                                        onClick={() => navigate('/login?changePassword')}
                                         className="emp-dropdown-btn"
                                     >
                                         Change Password
                                     </button>
                                     <button
-                                        onClick={() => { localStorage.clear(); window.location.reload(); }}
+                                        onClick={() => {
+                                            localStorage.clear();
+                                            window.location.reload();
+                                        }}
                                         className="emp-dropdown-btn logout-btn"
                                     >
                                         Logout
