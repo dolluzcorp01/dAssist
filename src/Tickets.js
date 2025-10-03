@@ -5,6 +5,8 @@ import { apiFetch } from "./utils/api";
 import Swal from "sweetalert2";
 import { FaTimes } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { useQuill } from "react-quilljs";
+import "quill/dist/quill.snow.css";
 import "./Tickets.css";
 
 const Tickets = () => {
@@ -16,6 +18,31 @@ const Tickets = () => {
     const [showContact, setShowContact] = useState(false);
     const priorityRef = useRef(null);
     const contactRef = useRef(null);
+
+    const { quill, quillRef } = useQuill({
+        theme: "snow",
+        modules: {
+            toolbar: [
+                ["bold", "italic", "underline", "strike"],
+                [{ list: "ordered" }, { list: "bullet" }],
+                [{ align: [] }],
+                ["clean"],
+            ],
+        },
+        formats: [
+            "bold", "italic", "underline", "strike",
+            "list", "bullet", "align",
+        ],
+    });
+
+    // listen for changes
+    useEffect(() => {
+        if (quill) {
+            quill.on("text-change", () => {
+                handleDescriptionChange(quill.root.innerHTML);
+            });
+        }
+    }, [quill]);
 
     const priorities = [
         {
@@ -193,6 +220,13 @@ const Tickets = () => {
         }
     };
 
+    const handleDescriptionChange = (value) => {
+        setFormData((prev) => ({
+            ...prev,
+            description: value,
+        }));
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
@@ -282,6 +316,21 @@ const Tickets = () => {
             return;
         }
 
+        // 🔹 ✅ Description length validation (min 300, max 5000)
+        const plainTextDescription = quill ? quill.getText().trim() : "";
+        if (
+            // plainTextDescription.length < 300 ||
+            plainTextDescription.length > 5000) {
+            Swal.fire({
+                icon: "error",
+                title: "Validation Error",
+                text: "Description must be between 300 and 5000 characters",
+            });
+            setErrors(prev => ({ ...prev, description: true }));
+            setIsSubmitting(false);
+            return;
+        }
+
         // ✅ Build FormData for file + text fields
         const formDataToSend = new FormData();
         for (const key in formData) {
@@ -302,6 +351,7 @@ const Tickets = () => {
             setIsSubmitting(false);
             return;
         }
+        console.log("Submitting form data:", ...formDataToSend); // Debug log
 
         try {
             const res = await apiFetch("/api/tickets/submit", {
@@ -576,15 +626,14 @@ const Tickets = () => {
                         />
 
                         {/* Description */}
-                        <label>Description <span style={{ color: "red" }}>* </span> </label>
-                        <textarea
-                            name="description"
-                            rows="4"
-                            value={formData.description}
-                            onChange={handleChange}
-                            disabled={!formData.emp_id}
-                            className={errors.description ? "invalid" : ""}
-                        ></textarea>
+                        <label>
+                            Description <span style={{ color: "red" }}>*</span>
+                        </label>
+
+                        <div
+                            ref={quillRef}
+                            style={{ height: "150px", marginBottom: "20px" }}
+                        />
 
                         {/* Attachment */}
                         <div className="attachment-field" style={{ position: "relative", display: "inline-block", width: "100%" }}>

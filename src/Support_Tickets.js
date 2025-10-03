@@ -977,7 +977,10 @@ function TicketDashboard() {
                                     </div>
                                     <div className="detail-card" style={{ gridColumn: "span 2" }}>
                                         <span className="label">Description</span>
-                                        <span className="value description">{selectedTicket.description}</span>
+                                        <span
+                                            className="value description"
+                                            dangerouslySetInnerHTML={{ __html: selectedTicket.description }}
+                                        />
                                     </div>
                                 </div>
                             </div>
