@@ -5,6 +5,7 @@ import Thank_you from "./Thank_you";
 import Support_Tickets from "./Support_Tickets";
 import Login from "./Login";
 import Employee_Center from "./Employee_Center";
+import Dashboard from "./Dashboard";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
       <Route path="/Support_Tickets" element={<Support_Tickets />} />
       <Route path="/Login" element={<Login />} />
       <Route path="/Employee_Center" element={<Employee_Center />} />
+      <Route path="/Dashboard" element={<Dashboard />} />
       <Route path="/" element={<Navigate to="/Tickets" />} />
     </Routes>
   );

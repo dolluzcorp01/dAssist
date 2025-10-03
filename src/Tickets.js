@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import LOGO from "./assets/img/LOGO.png";
 import doodle_bg from "./assets/img/doodle_bg.jpg";
 import { apiFetch } from "./utils/api";
@@ -12,6 +12,81 @@ const Tickets = () => {
     const [errors, setErrors] = useState({});
     const navigate = useNavigate();
     const [isSubmitting, setIsSubmitting] = useState(false); // ✅ Loading state
+    const [showPriority, setShowPriority] = useState(false);
+    const [showContact, setShowContact] = useState(false);
+    const priorityRef = useRef(null);
+    const contactRef = useRef(null);
+
+    const priorities = [
+        {
+            value: "High",
+            label: "High",
+            icon: (
+                <span style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                    <i className="fa-solid fa-angle-up" style={{ color: "red", fontSize: "16px", lineHeight: "0.6" }}></i>
+                    <i className="fa-solid fa-angle-up" style={{ color: "red", fontSize: "12px", lineHeight: "0.6" }}></i>
+                    <i className="fa-solid fa-angle-up" style={{ color: "red", fontSize: "10px", lineHeight: "0.6" }}></i>
+                </span>
+            ),
+        },
+        {
+            value: "Medium",
+            label: "Medium",
+            icon: (
+                <span style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                    <i className="fa-solid fa-angle-up" style={{ color: "orange", fontSize: "14px", lineHeight: "0.6" }}></i>
+                    <i className="fa-solid fa-angle-up" style={{ color: "orange", fontSize: "10px", lineHeight: "0.6" }}></i>
+                </span>
+            ),
+        },
+        {
+            value: "Low",
+            label: "Low",
+            icon: (
+                <span style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                    <i className="fa-solid fa-angle-up" style={{ color: "yellow", fontSize: "12px", lineHeight: "0.6" }}></i>
+                </span>
+            ),
+        },
+    ];
+
+    const contactMethods = [
+        {
+            value: "Email",
+            label: "Email",
+            icon: <i className="fa-solid fa-envelope contact-icons email-icon"></i>,
+        },
+        {
+            value: "Mobile",
+            label: "Mobile/Phone",
+            icon: <i className="fa-solid fa-mobile-screen contact-icons mobile-icon"></i>,
+        },
+        {
+            value: "Cliq",
+            label: "Cliq",
+            icon: <i className="fa-brands fa-rocketchat contact-icons cliq-icon"></i>,
+        },
+    ];
+
+    useEffect(() => {
+        const handleOutsideClick = (e) => {
+            // Close Priority dropdown if clicked outside
+            if (priorityRef.current && !priorityRef.current.contains(e.target)) {
+                setShowPriority(false);
+            }
+
+            // Close Contact dropdown if clicked outside
+            if (contactRef.current && !contactRef.current.contains(e.target)) {
+                setShowContact(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleOutsideClick);
+
+        return () => {
+            document.removeEventListener("mousedown", handleOutsideClick);
+        };
+    }, []);
 
     const [formData, setFormData] = useState({
         name: "",
@@ -408,36 +483,84 @@ const Tickets = () => {
 
                         {/* Priority & Preferred Contact Method */}
                         <div className="ticket-row">
+
+                            {/* Priority Custom Dropdown */}
                             <div className="field">
-                                <label>Priority <span style={{ color: "red" }}>* </span> </label>
-                                <select
-                                    name="priority"
-                                    value={formData.priority}
-                                    onChange={handleChange}
-                                    disabled={!formData.emp_id}
-                                    className={errors.priority ? "invalid" : ""}
-                                >
-                                    <option value="">Select Priority</option>
-                                    <option value="High"> High</option>
-                                    <option value="Medium">Medium</option>
-                                    <option value="Low">Low</option>
-                                </select>
+                                <label>Priority <span style={{ color: "red" }}>* </span></label>
+
+                                <div className="priority-custom-dropdown" ref={priorityRef}>
+                                    <div className="selected-option" onClick={() => setShowPriority(prev => !prev)}>
+                                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                            {formData.priority
+                                                ? priorities.find(p => p.value === formData.priority).icon
+                                                : null}
+                                            {formData.priority
+                                                ? priorities.find(p => p.value === formData.priority).label
+                                                : "Select Priority"}
+                                        </div>
+                                        <i className="fa-solid fa-angle-down priority-arrow"></i>
+                                    </div>
+
+                                    {/* Dropdown list */}
+                                    {showPriority && (
+                                        <div className="priority-dropdown-menu">
+                                            {priorities.map((p) => (
+                                                <div
+                                                    key={p.value}
+                                                    className="priority-dropdown-item"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation(); // Prevent toggle
+                                                        handleChange({ target: { name: "priority", value: p.value } });
+                                                        setShowPriority(false);
+                                                    }}
+                                                >
+                                                    {p.icon} {p.label}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
                             </div>
+
                             <div className="field">
-                                <label>Preferred Contact Method <span style={{ color: "red" }}>* </span> </label>
-                                <select
-                                    name="contactMethod"
-                                    value={formData.contactMethod}
-                                    onChange={handleChange}
-                                    disabled={!formData.emp_id}
-                                    className={errors.contactMethod ? "invalid" : ""}
-                                >
-                                    <option value="">Select Contact Method</option>
-                                    <option value="Email">Email</option>
-                                    <option value="Mobile">Mobile/Phone</option>
-                                    <option value="Cliq">Cliq</option>
-                                </select>
+                                <label>Preferred Contact Method <span style={{ color: "red" }}>* </span></label>
+
+                                <div className="priority-custom-dropdown" ref={contactRef}>
+                                    <div
+                                        className="selected-option"
+                                        onClick={() => setShowContact(prev => !prev)}
+                                    >
+                                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                            {formData.contactMethod
+                                                ? contactMethods.find(c => c.value === formData.contactMethod).icon
+                                                : null}
+                                            {formData.contactMethod
+                                                ? contactMethods.find(c => c.value === formData.contactMethod).label
+                                                : "Select Contact Method"}
+                                        </div>
+                                        <i className="fa-solid fa-angle-down priority-arrow"></i>
+                                    </div>
+
+                                    {showContact && (
+                                        <div className="priority-dropdown-menu">
+                                            {contactMethods.map(c => (
+                                                <div
+                                                    key={c.value}
+                                                    className="priority-dropdown-item"
+                                                    onClick={e => {
+                                                        e.stopPropagation();
+                                                        handleChange({ target: { name: "contactMethod", value: c.value } });
+                                                        setShowContact(false);
+                                                    }}
+                                                >
+                                                    {c.icon} {c.label}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
                             </div>
+
                         </div>
 
                         {/* Subject */}

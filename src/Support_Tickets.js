@@ -777,7 +777,7 @@ function TicketDashboard() {
                 </div>
 
                 {/* Shared container */}
-                <div className="dashboard-content">
+                <div className="ticket-dashboard-content">
                     {/* Filters */}
                     <div className="filters-container">
                         <div className="filters-left">

@@ -139,3 +139,136 @@ select.invalid {
     user-select: none;
     opacity: 0.7;
 }
+
+.priority-dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    margin-top: 5px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+}
+
+.priority-dropdown-item {
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.priority-dropdown-item:hover {
+    background: #f5f5f5;
+}
+
+.high {
+    color: red;
+}
+
+.medium {
+    color: orange;
+}
+
+.low {
+    color: green;
+}
+
+.priority-custom-dropdown {
+    width: 100%;
+    position: relative;
+}
+
+.priority-custom-dropdown .selected-option {
+    width: 100%;
+}
+
+/* Wrapper mimics select */
+.priority-custom-dropdown {
+    width: 100%;
+    position: relative;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: #fff;
+    cursor: pointer;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Selected text */
+.priority-custom-dropdown .selected-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+    cursor: pointer;
+}
+
+/* Arrow size */
+.priority-arrow {
+    font-size: 13px;
+}
+
+/* Remove gray block look */
+.priority-custom-dropdown .placeholder {
+    color: #aaa;
+    font-size: 14px;
+}
+
+/* Dropdown menu styling */
+.priority-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    width: 100%;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 9999;
+}
+
+/* Dropdown item */
+.priority-dropdown-item {
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.priority-dropdown-item:hover {
+    background: #0d6efd;
+    color: white;
+}
+
+.contact-icons {
+    font-size: 16px;
+}
+
+/* Original colors */
+.email-icon {
+    color: #1a73e8;
+}
+
+.mobile-icon {
+    color: #198754;
+}
+
+.cliq-icon {
+    color: #fd7e14;
+}
+
+/* Hover effect */
+.priority-dropdown-item:hover .contact-icons {
+    color: white;
+}
+
+.priority-dropdown-item * {
+    pointer-events: none;
+}
