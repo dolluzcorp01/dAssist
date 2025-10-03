@@ -66,21 +66,7 @@ router.post("/upload-profile/:empId", profileUpload.single("profile"), (req, res
 // 🔹 Get all employees
 router.get("/all", (req, res) => {
   const query = `
-    SELECT 
-      emp_id,
-      emp_name,
-      emp_mail_id,
-      account_pass, 
-      emp_mobile_no,
-      emp_department,
-      emp_type,
-      emp_location,
-      emp_access_level,
-      created_by,
-      created_time,
-      updated_by,
-      updated_time, 
-      emp_profile_img
+    SELECT * 
     FROM employee
     WHERE deleted_by IS NULL 
     ORDER BY created_time DESC 
@@ -123,6 +109,16 @@ router.put("/delete/:id", (req, res) => {
   const { deleted_by } = req.body;
   const query = `UPDATE employee SET deleted_by=?, deleted_time=NOW() WHERE emp_id=?`;
   db.query(query, [deleted_by, req.params.id], (err) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ success: true });
+  });
+});
+
+// Update employee active status
+router.put("/toggle-active/:id", (req, res) => {
+  const { is_active, updated_by } = req.body;
+  const query = `UPDATE employee SET is_active=?, is_active_updated_by=?, is_active_updated_time=NOW() WHERE emp_id=?`;
+  db.query(query, [is_active, updated_by, req.params.id], (err) => {
     if (err) return res.status(500).json({ error: err.message });
     res.json({ success: true });
   });
