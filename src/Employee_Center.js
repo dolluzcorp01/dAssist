@@ -8,6 +8,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { Navigate, useNavigate } from "react-router-dom";
 import { apiFetch, API_BASE } from "./utils/api";
+import DOLLUZ_Full_Logo from "./assets/img/DOLLUZ_Full_Logo.png";
 import LOGO from "./assets/img/LOGO.png";
 import "./Employee_Center.css";
 
@@ -460,7 +461,7 @@ function Employee_Center() {
                 const imgWidth = 40;
                 const imgHeight = 20;
                 const imgX = (pageWidth - imgWidth) / 2;
-                doc.addImage(LOGO, "PNG", imgX, 5, imgWidth, imgHeight);
+                doc.addImage(DOLLUZ_Full_Logo, "PNG", imgX, 5, imgWidth, imgHeight);
 
                 doc.setFontSize(13);
                 doc.text("Employees Report", pageWidth / 2, 30, { align: "center" });
@@ -483,7 +484,7 @@ function Employee_Center() {
         const worksheet = workbook.addWorksheet("Employees");
 
         // Add Logo
-        const imageResponse = await fetch(LOGO);
+        const imageResponse = await fetch(DOLLUZ_Full_Logo);
         const imageBlob = await imageResponse.blob();
         const imageBuffer = await imageBlob.arrayBuffer();
 
@@ -638,8 +639,8 @@ function Employee_Center() {
 
                                         <div className="emp-profile-text">
                                             <div className="emp-name">{loggedInEmp.emp_name}</div>
-                                            <div className="emp-org" style={{ fontStyle: "italic" }}>
-                                                Your Form, Your Space
+                                            <div className="emp-org" style={{ fontStyle: "italic", whiteSpace: "nowrap" }}>
+                                                One Place, One start, One Team
                                             </div>
                                         </div>
                                     </div>

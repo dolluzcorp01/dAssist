@@ -113,7 +113,7 @@
     position: absolute;
     top: -30px;
     right: 45px;
-    width: 220px;
+    width: 240px;
     background: #fff;
     border: 1px solid #ccc;
     border-radius: 8px;
@@ -383,7 +383,6 @@
     font-size: 15px;
     font-weight: 600;
     color: #666;
-    text-transform: uppercase;
     margin-bottom: 3px;
 }
 

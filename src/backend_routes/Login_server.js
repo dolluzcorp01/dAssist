@@ -13,7 +13,7 @@ router.post("/login", (req, res) => {
         return res.status(400).json({ message: "Username and password are required" });
     }
 
-    const query = `SELECT * FROM employee WHERE emp_mail_id = ? AND deleted_time IS NULL`;
+    const query = `SELECT * FROM employee WHERE emp_mail_id = ? AND is_active = 1 AND deleted_time IS NULL `;
     db.query(query, [username], (err, results) => {
         if (err) return res.status(500).json({ message: "Database error" });
         if (results.length === 0) return res.status(401).json({ message: "Invalid credentials" });
@@ -139,7 +139,7 @@ const generateOTP = (userInput, res) => {
       <p>This OTP is valid for <strong>2 minutes</strong>. Do not share this code with anyone.</p>
       <p>If you did not request a password reset, please ignore this message.</p>
       <br/>
-      <p style="color: #888;">— The dAssist Team</p>
+      <p style="color: #888;">-The dAssist Team</p>
     </div>
   `
         };

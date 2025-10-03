@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { apiFetch, API_BASE } from "./utils/api";
-import LOGO from "./assets/img/LOGO.png";
+import DOLLUZ_Full_Logo from "./assets/img/DOLLUZ_Full_Logo.png";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import "./Login.css";
@@ -210,7 +210,7 @@ function Login() {
     return (
         <div className="login-page">
             <div className="login-container">
-                <img src={LOGO} alt="dAssist Logo" />
+                <img src={DOLLUZ_Full_Logo} alt="dAssist Logo" />
 
                 {mode === "login" && (
                     <>
@@ -219,11 +219,11 @@ function Login() {
 
                         {/* Username + Password */}
                         <div className="form-group">
-                            <label>Username (Email)</label>
+                            <label>Username (Email):</label>
                             <input type="text" className="form-control" value={username} onChange={(e) => setUsername(e.target.value)} />
                         </div>
                         <div className="form-group">
-                            <label>Password</label>
+                            <label>Password:</label>
                             <input type="password" className="form-control" value={password} onChange={(e) => setPassword(e.target.value)} />
                         </div>
 
@@ -248,7 +248,7 @@ function Login() {
                         <p>Enter your old password</p>
 
                         <div className="form-group">
-                            <label>Old Password</label>
+                            <label>Old Password:</label>
                             <input
                                 type="password"
                                 className="form-control"
@@ -261,9 +261,9 @@ function Login() {
                             Continue
                         </button>
 
-                        {/* Change password via OTP instead (inside change password screen) */}
+                        {/* Change Password via OTP (inside change password screen) */}
                         <a className="forgot-link" style={{ cursor: "pointer" }} onClick={() => { setOtpResetSource("changePassword"); setMode("otpReset"); }}>
-                            Change password via OTP instead
+                            Change Password via OTP
                         </a>
 
                         <a className="forgot-link" style={{ cursor: "pointer" }} onClick={() => { setMode("login"); navigate("/login"); }}>
@@ -281,7 +281,7 @@ function Login() {
                                 <p>Enter your registered email</p>
 
                                 <div className="form-group">
-                                    <label>Email</label>
+                                    <label>Email:</label>
                                     <input type="text" className="form-control" value={email} onChange={(e) => setEmail(e.target.value)} />
                                 </div>
 
@@ -296,7 +296,7 @@ function Login() {
                                 <p>OTP Sent to <strong>{email}</strong></p>
 
                                 <div className="form-group">
-                                    <label>Enter OTP</label>
+                                    <label>Enter OTP:</label>
                                     <input type="text" className="form-control" value={otp} onChange={(e) => setOtp(e.target.value)} />
                                 </div>
 
@@ -322,12 +322,12 @@ function Login() {
                         <h4>Set New Password</h4>
 
                         <div className="form-group">
-                            <label>New Password</label>
+                            <label>New Password:</label>
                             <input type="password" className="form-control" onChange={(e) => setNewPass(e.target.value)} />
                         </div>
 
                         <div className="form-group">
-                            <label>Confirm Password</label>
+                            <label>Confirm New Password:</label>
                             <input type="password" className="form-control" onChange={(e) => setConfirmPass(e.target.value)} />
                         </div>
 

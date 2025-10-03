@@ -77,7 +77,7 @@ router.post("/submit", ticketUpload.single("attachment"), (req, res) => {
             const mailOptions = {
                 from: '"Dolluz Support" <vv.pavithran12@gmail.com>',
                 to: `${data.email}, info@dolluzcorp.com`,
-                subject: `[Ticket ID: ${formattedId}] - Update on Your Request`,
+                subject: `[Ticket ID: ${formattedId}] Support Request Notification`,
                 html: `
           <div style="font-family: Arial, sans-serif; padding: 15px; border: 1px solid #ddd; border-radius: 8px;">
             <h2 style="color: #4A90E2;">Ticket Submission Confirmation</h2>

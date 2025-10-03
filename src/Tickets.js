@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import LOGO from "./assets/img/LOGO.png";
-import doodle_bg from "./assets/img/doodle_bg.jpg";
+import logo_eagle from "./assets/img/logo_eagle.png";
 import { apiFetch } from "./utils/api";
 import Swal from "sweetalert2";
 import { FaTimes } from "react-icons/fa";
@@ -50,9 +49,9 @@ const Tickets = () => {
             label: "High",
             icon: (
                 <span style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                    <i className="fa-solid fa-angle-up" style={{ color: "red", fontSize: "16px", lineHeight: "0.6" }}></i>
-                    <i className="fa-solid fa-angle-up" style={{ color: "red", fontSize: "12px", lineHeight: "0.6" }}></i>
-                    <i className="fa-solid fa-angle-up" style={{ color: "red", fontSize: "10px", lineHeight: "0.6" }}></i>
+                    <i className="fa-solid fa-angle-up" style={{ color: "red", fontSize: "15px", lineHeight: "0.5" }}></i>
+                    <i className="fa-solid fa-angle-up" style={{ color: "red", fontSize: "11px", lineHeight: "0.5" }}></i>
+                    <i className="fa-solid fa-angle-up" style={{ color: "red", fontSize: "9px", lineHeight: "0.5" }}></i>
                 </span>
             ),
         },
@@ -61,8 +60,8 @@ const Tickets = () => {
             label: "Medium",
             icon: (
                 <span style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                    <i className="fa-solid fa-angle-up" style={{ color: "orange", fontSize: "14px", lineHeight: "0.6" }}></i>
-                    <i className="fa-solid fa-angle-up" style={{ color: "orange", fontSize: "10px", lineHeight: "0.6" }}></i>
+                    <i className="fa-solid fa-angle-up" style={{ color: "#FF8C00", fontSize: "14px", lineHeight: "0.6" }}></i>
+                    <i className="fa-solid fa-angle-up" style={{ color: "#FF8C00", fontSize: "10px", lineHeight: "0.6" }}></i>
                 </span>
             ),
         },
@@ -71,7 +70,7 @@ const Tickets = () => {
             label: "Low",
             icon: (
                 <span style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                    <i className="fa-solid fa-angle-up" style={{ color: "yellow", fontSize: "12px", lineHeight: "0.6" }}></i>
+                    <i className="fa-solid fa-angle-up" style={{ color: "green", fontSize: "14px", lineHeight: "0.6" }}></i>
                 </span>
             ),
         },
@@ -405,16 +404,16 @@ const Tickets = () => {
                 <div className="ticket-logo">
                     <a className="navbar-brand" href="#">
                         <img
-                            src={LOGO}
-                            alt="dassist Logo"
+                            src={logo_eagle}
+                            alt="dassist logo_eagle"
                             style={{
                                 height: "80px",
                                 objectFit: "contain",
-                                marginLeft: "-60px",
+                                marginLeft: "-15px"
                             }}
                         />
                     </a>
-                    <span style={{ marginLeft: "-20px" }}>DOLLUZ</span>
+                    <span style={{ marginLeft: "5px" }}>DOLLUZ</span>
                 </div>
 
                 <form className="ticket-form" onSubmit={handleSubmit}>
