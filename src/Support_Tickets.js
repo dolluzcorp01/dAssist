@@ -597,13 +597,12 @@ function TicketDashboard() {
                     <h2>
                         <a className="navbar-brand" href="#">
                             <img
-                                src={LOGO}
+                                src={logo_eagle}
                                 alt="dassist Logo"
                                 style={{
-                                    height: "60px",
+                                    height: "50px",
                                     objectFit: "contain",
                                     marginLeft: "-20px",
-                                    marginRight: "-20px",
                                 }}
                             />
                         </a>

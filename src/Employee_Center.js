@@ -9,7 +9,7 @@ import autoTable from "jspdf-autotable";
 import { useNavigate } from "react-router-dom";
 import { apiFetch, API_BASE } from "./utils/api";
 import DOLLUZ_Full_Logo from "./assets/img/DOLLUZ_Full_Logo.png";
-import LOGO from "./assets/img/LOGO.png";
+import logo_eagle from "./assets/img/logo_eagle.png";
 import "./Employee_Center.css";
 
 function Employee_Center() {
@@ -629,13 +629,12 @@ function Employee_Center() {
                     <h2>
                         <a className="navbar-brand" href="#">
                             <img
-                                src={LOGO}
+                                src={logo_eagle}
                                 alt="dassist Logo"
                                 style={{
-                                    height: "60px",
+                                    height: "50px",
                                     objectFit: "contain",
                                     marginLeft: "-20px",
-                                    marginRight: "-20px",
                                 }}
                             />
                         </a>

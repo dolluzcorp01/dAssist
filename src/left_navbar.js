@@ -12,7 +12,7 @@ import {
     FaChevronLeft,
     FaAngleRight
 } from "react-icons/fa";
-import LOGO from "./assets/img/LOGO.png";
+import logo_eagle from "./assets/img/logo_eagle.png";
 import "./left_navbar.css";
 
 function LeftNavbar({ navSize, setNavSize }) {
@@ -27,10 +27,10 @@ function LeftNavbar({ navSize, setNavSize }) {
         <div className={`left-navbar ${navSize}`} style={{ '--navbar-width': navSize === 'full' ? '220px' : navSize === 'icon-only' ? '40px' : '10px' }}>
             <div className={`navbar-header ${navSize === "full" ? "full-view-header" : ""}`}>
                 {navSize !== "hidden" && (<h3>
-                    <a className="navbar-brand" href="#">
-                        <img src={LOGO} alt="dassist Logo" className="logo-img" />
+                    <a className="navbar-brand" href="#" style={{ marginRight: "10px", marginLeft: "30px" }}   >
+                        <img src={logo_eagle} alt="dassist Logo" className={`logo-img ${navSize}`} />
                     </a>
-                    {navSize === "full" && "dAssist"}
+                    {navSize === "full" && "dAdmin"}
                 </h3>
                 )}
             </div>

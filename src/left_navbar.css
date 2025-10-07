@@ -50,6 +50,13 @@
     object-fit: contain;
 }
 
+.logo-img.icon-only {
+    height: 30px;
+    width: 30px;
+    margin-left: -15px;
+    object-fit: contain;
+}
+
 .navbar-menu {
     list-style: none;
     padding: 0;
