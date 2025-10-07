@@ -6,7 +6,7 @@ const mysql = require("mysql2");
 const multer = require("multer");
 const nodemailer = require("nodemailer");
 
-const db = getDBConnection('dassist');
+const db = getDBConnection('dadmin');
 
 // Lookup employee by email
 router.get("/employee/:email", (req, res) => {

@@ -7,7 +7,7 @@ const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
 
-const db = getDBConnection('dassist');
+const db = getDBConnection('dadmin');
 
 const profileUpload = multer({
   storage: multer.diskStorage({

@@ -3,7 +3,7 @@ const express = require("express");
 const getDBConnection = require('../../config/db');
 const router = express.Router();
 const nodemailer = require("nodemailer");
-const db = getDBConnection("dassist");
+const db = getDBConnection("dadmin");
 
 // 🔹 Login 
 router.post("/login", (req, res) => {
