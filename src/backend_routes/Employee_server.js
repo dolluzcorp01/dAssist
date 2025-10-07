@@ -6,6 +6,7 @@ const mysql = require("mysql2");
 const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
+const bcrypt = require("bcryptjs");
 
 const db = getDBConnection('dadmin');
 
@@ -84,6 +85,14 @@ router.get("/all", (req, res) => {
 // Create employee
 router.post("/create", (req, res) => {
   const emp = req.body;
+  const db = getDBConnection("dadmin");
+
+  // 🔹 Encrypt (hash) the password before inserting
+  let hashedPassword = null;
+  if (emp.account_pass && emp.account_pass.trim() !== "") {
+    const salt = bcrypt.genSaltSync(10);
+    hashedPassword = bcrypt.hashSync(emp.account_pass, salt);
+  }
 
   // First insert without emp_id
   const insertQuery = `
@@ -103,7 +112,7 @@ router.post("/create", (req, res) => {
     [
       placeholderEmpId,
       emp.emp_first_name, emp.emp_last_name, emp.dob, emp.blood_group,
-      emp.emp_mail_id, emp.account_pass, emp.emp_mobile_no, emp.emp_alternate_mobile_no,
+      emp.emp_mail_id, hashedPassword, emp.emp_mobile_no, emp.emp_alternate_mobile_no,
       emp.emp_department, emp.emp_type, emp.carrier_level, emp.job_position,
       emp.emp_location, emp.emp_access_level, emp.created_by
     ],
@@ -132,7 +141,7 @@ router.put("/update/:id", (req, res) => {
     UPDATE employee 
     SET 
       emp_first_name=?, emp_last_name=?, dob=?, blood_group=?,
-      emp_mail_id=?, account_pass=?, emp_mobile_no=?, emp_alternate_mobile_no=?,
+      emp_mail_id=?, emp_mobile_no=?, emp_alternate_mobile_no=?,
       emp_department=?, emp_type=?, carrier_level=?, job_position=?,
       emp_location=?, emp_access_level=?, updated_by=?
     WHERE emp_id=?
@@ -142,7 +151,7 @@ router.put("/update/:id", (req, res) => {
     query,
     [
       emp.emp_first_name, emp.emp_last_name, emp.dob, emp.blood_group,
-      emp.emp_mail_id, emp.account_pass, emp.emp_mobile_no, emp.emp_alternate_mobile_no,
+      emp.emp_mail_id, emp.emp_mobile_no, emp.emp_alternate_mobile_no,
       emp.emp_department, emp.emp_type, emp.carrier_level, emp.job_position,
       emp.emp_location, emp.emp_access_level, emp.updated_by,
       req.params.id

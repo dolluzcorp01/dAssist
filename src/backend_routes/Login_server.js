@@ -1,11 +1,13 @@
 
 const express = require("express");
+const bcrypt = require("bcryptjs");
 const getDBConnection = require('../../config/db');
 const router = express.Router();
 const nodemailer = require("nodemailer");
 const db = getDBConnection("dadmin");
 
-// 🔹 Login 
+
+// 🔹 LOGIN (with bcrypt verification)
 router.post("/login", (req, res) => {
     const { username, password } = req.body;
 
@@ -13,34 +15,41 @@ router.post("/login", (req, res) => {
         return res.status(400).json({ message: "Username and password are required" });
     }
 
-    const query = `SELECT * FROM employee WHERE emp_mail_id = ? AND is_active = 1 AND deleted_time IS NULL `;
+    const query = `SELECT * FROM employee WHERE emp_mail_id = ? AND is_active = 1 AND deleted_time IS NULL`;
+
     db.query(query, [username], (err, results) => {
         if (err) return res.status(500).json({ message: "Database error" });
         if (results.length === 0) return res.status(401).json({ message: "Invalid credentials" });
 
         const employee = results[0];
 
-        // Direct comparison without encryption
-        if (employee.account_pass !== password) {
+        // 🔒 Check if password exists (Google users might not have one)
+        if (!employee.account_pass || employee.account_pass.trim() === "") {
+            return res.status(401).json({ message: "Login with Google instead. Password not set." });
+        }
+
+        // 🔹 Verify bcrypt password
+        const isPasswordMatch = bcrypt.compareSync(password, employee.account_pass);
+        if (!isPasswordMatch) {
             return res.status(401).json({ message: "Invalid credentials" });
         }
 
-        // ✅ Check if employee is admin
+        // ✅ Only Admins can log in
         if (employee.emp_access_level !== "Admin") {
             return res.status(403).json({ message: "Access denied. Only admins can login." });
         }
 
-        // ✅ Login successful for admin
-        res.json({ message: "Login successful", employee });
+        // ✅ Successful login
+        return res.json({ message: "Login successful", employee });
     });
 });
 
-// ✅ Verify old password API
+// ✅ VERIFY OLD PASSWORD (with bcrypt)
 router.post("/verify-old-password", (req, res) => {
     const { emp_id, oldPass } = req.body;
 
     if (!emp_id) {
-        return res.status(400).json({ message: "Employee section expried" });
+        return res.status(400).json({ message: "Employee session expired" });
     }
 
     const query = `SELECT * FROM employee WHERE emp_id = ? AND deleted_time IS NULL`;
@@ -51,7 +60,9 @@ router.post("/verify-old-password", (req, res) => {
 
         const employee = results[0];
 
-        if (employee.account_pass !== oldPass) {
+        // 🔒 Verify bcrypt password
+        const isPasswordMatch = bcrypt.compareSync(oldPass, employee.account_pass);
+        if (!isPasswordMatch) {
             return res.status(401).json({ message: "Old password is incorrect" });
         }
 
@@ -59,7 +70,7 @@ router.post("/verify-old-password", (req, res) => {
     });
 });
 
-// ✅ Update New Password API
+// ✅ UPDATE PASSWORD (encrypt before saving)
 router.post("/update-password", (req, res) => {
     const { emp_id, email, newPass } = req.body;
 
@@ -67,13 +78,17 @@ router.post("/update-password", (req, res) => {
         return res.status(400).json({ message: "Employee info expired" });
     }
 
+    // 🔹 Encrypt new password using bcrypt
+    const salt = bcrypt.genSaltSync(10);
+    const hashedPassword = bcrypt.hashSync(newPass, salt);
+
     const query = emp_id
         ? `UPDATE employee SET account_pass = ?, updated_time = NOW() WHERE emp_id = ?`
         : `UPDATE employee SET account_pass = ?, updated_time = NOW() WHERE emp_mail_id = ?`;
 
     const identifier = emp_id || email;
 
-    db.query(query, [newPass, identifier], (err, result) => {
+    db.query(query, [hashedPassword, identifier], (err, result) => {
         if (err) return res.status(500).json({ message: "Database error", error: err });
 
         if (result.affectedRows === 0) {

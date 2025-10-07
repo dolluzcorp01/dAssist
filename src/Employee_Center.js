@@ -1054,8 +1054,8 @@ function Employee_Center() {
                                     </select>
                                 </div>
 
-                                {/* Account Password - only for Admin */}
-                                {formData.emp_access_level === "Admin" && (
+                                {/* Account Password - only for Admin and only when adding new employee */}
+                                {formData.emp_access_level === "Admin" && !editingEmp && (
                                     <div className="field-group password-field">
                                         <label>Account Password <span className="required">*</span></label>
                                         <div className="password-input-wrapper">
@@ -1075,6 +1075,7 @@ function Employee_Center() {
                                         </div>
                                     </div>
                                 )}
+
                             </div>
                             {/* Action buttons */}
                             <div className="modal-actions">
