@@ -6,7 +6,7 @@ import Select, { components } from "react-select";
 import ExcelJS from "exceljs";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { apiFetch, API_BASE } from "./utils/api";
 import DOLLUZ_Full_Logo from "./assets/img/DOLLUZ_Full_Logo.png";
 import LOGO from "./assets/img/LOGO.png";

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import LeftNavbar from "./left_navbar";
+import { useNavigate } from "react-router-dom";
 import { apiFetch } from "./utils/api";
 import { Pie } from "react-chartjs-2";
 import {
@@ -36,6 +37,26 @@ function Dashboard() {
     const [ticketFilter, setTicketFilter] = useState([]);
     const [employeeFilter, setEmployeeFilter] = useState([]);
     const filterableColumns = ["ticket_status", "category"];
+    const [loggedInEmp, setLoggedInEmp] = useState(null);
+    const [empId, setEmpId] = useState(null);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const id = localStorage.getItem("emp_id");
+        setEmpId(id);
+    }, []);
+
+    useEffect(() => {
+        if (empId && employees.length > 0) {
+            const emp = employees.find(e => e.emp_id == empId);
+            if (emp) {
+                setLoggedInEmp(emp);
+                if (emp.emp_access_level !== "Admin") {
+                    navigate("/login");
+                }
+            }
+        }
+    }, [empId, employees]);
 
     useEffect(() => {
         fetchTickets();
