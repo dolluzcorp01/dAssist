@@ -115,7 +115,7 @@ router.get("/all", (req, res) => {
     const query = `
     SELECT 
       t.ticket_id,
-      e.emp_name,
+      CONCAT(e.emp_first_name, ' ', e.emp_last_name) AS emp_name, 
       e.emp_mail_id,
       e.emp_department,
       t.category,

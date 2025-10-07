@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import Select, { components } from "react-select";
-import DOLLUZ_Full_Logo from "./assets/img/DOLLUZ_Full_Logo.png";
+import logo_eagle from "./assets/img/logo_eagle.png";
 import LOGO from "./assets/img/LOGO.png";
 import { apiFetch, API_BASE } from "./utils/api";
 import { useNavigate } from "react-router-dom";
@@ -443,7 +443,7 @@ function TicketDashboard() {
                 const imgWidth = 40;
                 const imgHeight = 30;
                 const imgX = (pageWidth - imgWidth) / 2;
-                doc.addImage(DOLLUZ_Full_Logo, "PNG", imgX, 5, imgWidth, imgHeight);
+                doc.addImage(logo_eagle, "PNG", imgX, 5, imgWidth, imgHeight);
 
                 doc.setFontSize(13);
                 doc.text("Tickets Report", pageWidth / 2, 45, { align: "center" });
@@ -465,7 +465,7 @@ function TicketDashboard() {
         const worksheet = workbook.addWorksheet("Tickets");
 
         // ✅ Add Logo (Bigger Size)
-        const imageResponse = await fetch(DOLLUZ_Full_Logo);
+        const imageResponse = await fetch(logo_eagle);
         const imageBlob = await imageResponse.blob();
         const imageBuffer = await imageBlob.arrayBuffer();
 
@@ -617,7 +617,7 @@ function TicketDashboard() {
                                 className="emp-circle"
                                 onClick={() => setShowEmpMenu(!showEmpMenu)}
                                 style={{
-                                    backgroundColor: loggedInEmp.emp_profile_img ? "transparent" : stringToColor(loggedInEmp.emp_name),
+                                    backgroundColor: loggedInEmp.emp_profile_img ? "transparent" : stringToColor(loggedInEmp.emp_first_name + " " + loggedInEmp.emp_last_name),
                                     color: "#fff",
                                     fontWeight: "bold",
                                     fontSize: "18px",
@@ -638,7 +638,7 @@ function TicketDashboard() {
                                         style={{ width: "100%", height: "100%", objectFit: "cover" }}
                                     />
                                 ) : (
-                                    loggedInEmp.emp_name.charAt(0).toUpperCase()
+                                    loggedInEmp.emp_first_name.charAt(0).toUpperCase() + loggedInEmp.emp_last_name.charAt(0).toUpperCase()
                                 )}
                             </div>
 
@@ -649,7 +649,7 @@ function TicketDashboard() {
                                         <div
                                             className="emp-profile-circle"
                                             style={{
-                                                backgroundColor: loggedInEmp.emp_profile_img ? "transparent" : stringToColor(loggedInEmp.emp_name),
+                                                backgroundColor: loggedInEmp.emp_profile_img ? "transparent" : stringToColor(loggedInEmp.emp_first_name + " " + loggedInEmp.emp_last_name),
                                                 color: "#fff",
                                                 fontWeight: "bold",
                                                 fontSize: "18px",
@@ -673,14 +673,14 @@ function TicketDashboard() {
                                                     style={{ width: "100%", height: "100%", objectFit: "cover" }}
                                                 />
                                             ) : (
-                                                isDropdownHovered ? <FaCamera color="white" /> : loggedInEmp.emp_name.charAt(0).toUpperCase()
+                                                isDropdownHovered ? <FaCamera color="white" /> : loggedInEmp.emp_first_name.charAt(0).toUpperCase() + loggedInEmp.emp_last_name.charAt(0).toUpperCase()
                                             )}
                                         </div>
 
                                         <div className="emp-profile-text">
-                                            <div className="emp-name">{loggedInEmp.emp_name}</div>
+                                            <div className="emp-name">{loggedInEmp.emp_first_name + " " + loggedInEmp.emp_last_name}</div>
                                             <div className="emp-org" style={{ fontStyle: "italic", whiteSpace: "nowrap" }}>
-                                                One Place, One start, One Team
+                                                One Place. One start. One Team.
                                             </div>
                                         </div>
                                     </div>
@@ -1079,7 +1079,7 @@ function TicketDashboard() {
 
                                 {/* History Section */}
                                 <div className="history-section">
-                                    <h4 style={{ marginBottom: "15px" }}>History</h4>
+                                    <h4 style={{ marginBottom: "15px" }}>History: </h4>
                                     <div className="history-timeline">
                                         {history.length > 0 ? (
                                             history.map((h, index) => {

@@ -125,6 +125,8 @@
 .employee-modal-content {
     background: #fff;
     width: 700px;
+    max-height: 90vh;
+    overflow-y: auto;
     padding: 25px 30px;
     border-radius: 12px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);

@@ -70,17 +70,25 @@ function Employee_Center() {
     }, []);
 
     const [formData, setFormData] = useState({
-        emp_name: "",
+        emp_first_name: "",
+        emp_last_name: "",
+        dob: "",
+        blood_group: "",
         emp_mail_id: "",
         account_pass: "",
         emp_mobile_no: "",
+        emp_alternate_mobile_no: "",
         emp_department: "",
+        emp_carrer_level: "",
+        emp_job_position: "",
         emp_type: "",
         emp_location: "",
         emp_access_level: "",
     });
 
     const departments = ["Development", "Testing", "HR", "Support"];
+    const job_positions = ["Manager", "Team lead", "HR", "Senoir Developer", "Junior Developer", "Data Management"];
+    const carrier_levels = ["Experience", "Fresher"];
     const types = ["Full Time", "Part Time", "Contract"];
     const locations = ["Chennai", "Hyderabad", "Pune", "Nagpur"];
     const accessLevels = ["Admin", "User"];
@@ -91,7 +99,8 @@ function Employee_Center() {
 
     // Filters
     const filterOptions = [
-        { value: "emp_name", label: "Name" },
+        { value: "emp_first_name", label: "First Name" },
+        { value: "emp_last_name", label: "Last Name" },
         { value: "emp_mail_id", label: "Email" },
         { value: "account_pass", label: "Account Password" },
         { value: "emp_department", label: "Department" },
@@ -101,7 +110,7 @@ function Employee_Center() {
     ];
 
     const filterableColumns = filterOptions.map(f => f.value);
-    const [selectedFilter, setSelectedFilter] = useState("emp_name");
+    const [selectedFilter, setSelectedFilter] = useState("emp_first_name");
     const [filters, setFilters] = useState(
         filterableColumns.reduce((acc, col) => ({ ...acc, [col]: [] }), {})
     );
@@ -227,15 +236,38 @@ function Employee_Center() {
     const handleSave = async () => {
         const newErrors = {};
 
-        // 1️⃣ Name
-        if (!formData.emp_name) {
-            newErrors.emp_name = true;
+        // Name
+        if (!formData.emp_first_name) {
+            newErrors.emp_first_name = true;
             setErrors(newErrors);
-            Swal.fire("Validation Error", "Name is required", "error");
+            Swal.fire("Validation Error", "First Name is required", "error");
             return;
         }
 
-        // 2️⃣ Email
+        if (!formData.emp_last_name) {
+            newErrors.emp_last_name = true;
+            setErrors(newErrors);
+            Swal.fire("Validation Error", "Last Name is required", "error");
+            return;
+        }
+
+        // DOB
+        if (!formData.dob) {
+            newErrors.dob = true;
+            setErrors(newErrors);
+            Swal.fire("Validation Error", "DOB is required", "error");
+            return;
+        }
+
+        // Blood Group
+        if (!formData.blood_group) {
+            newErrors.blood_group = true;
+            setErrors(newErrors);
+            Swal.fire("Validation Error", "Blood Group is required", "error");
+            return;
+        }
+
+        // Email
         if (!formData.emp_mail_id) {
             newErrors.emp_mail_id = true;
             setErrors(newErrors);
@@ -248,7 +280,7 @@ function Employee_Center() {
             return;
         }
 
-        // 3️⃣ Mobile
+        // Mobile
         if (!formData.emp_mobile_no) {
             newErrors.emp_mobile_no = true;
             setErrors(newErrors);
@@ -259,9 +291,27 @@ function Employee_Center() {
             setErrors(newErrors);
             Swal.fire("Validation Error", "Mobile must be 10 digits", "error");
             return;
+        } else if (formData.emp_alternate_mobile_no === formData.emp_mobile_no) {
+            newErrors.emp_alternate_mobile_no = true;
+            setErrors(newErrors);
+            Swal.fire("Validation Error", "Alternate Mobile cannot be the same as Primary Mobile", "error");
+            return;
         }
 
-        // 4️⃣ Department
+        // Alternate Mobile
+        if (!formData.emp_alternate_mobile_no) {
+            newErrors.emp_alternate_mobile_no = true;
+            setErrors(newErrors);
+            Swal.fire("Validation Error", "Alternate Mobile is required", "error");
+            return;
+        } else if (formData.emp_alternate_mobile_no.length !== 10) {
+            newErrors.emp_alternate_mobile_no = true;
+            setErrors(newErrors);
+            Swal.fire("Validation Error", "Alternate Mobile must be 10 digits", "error");
+            return;
+        }
+
+        // Department
         if (!formData.emp_department) {
             newErrors.emp_department = true;
             setErrors(newErrors);
@@ -269,7 +319,23 @@ function Employee_Center() {
             return;
         }
 
-        // 5️⃣ Employee Type
+        // Carrier Level
+        if (!formData.carrier_level) {
+            newErrors.carrier_level = true;
+            setErrors(newErrors);
+            Swal.fire("Validation Error", "Carrier Level is required", "error");
+            return;
+        }
+
+        // Job Position
+        if (!formData.job_position) {
+            newErrors.job_position = true;
+            setErrors(newErrors);
+            Swal.fire("Validation Error", "Job Position is required", "error");
+            return;
+        }
+
+        // Employee Type
         if (!formData.emp_type) {
             newErrors.emp_type = true;
             setErrors(newErrors);
@@ -277,7 +343,7 @@ function Employee_Center() {
             return;
         }
 
-        // 6️⃣ Location
+        // Location
         if (!formData.emp_location) {
             newErrors.emp_location = true;
             setErrors(newErrors);
@@ -285,7 +351,7 @@ function Employee_Center() {
             return;
         }
 
-        // 7️⃣ Access Level
+        // Access Level
         if (!formData.emp_access_level) {
             newErrors.emp_access_level = true;
             setErrors(newErrors);
@@ -293,7 +359,7 @@ function Employee_Center() {
             return;
         }
 
-        // 8️⃣ Account Password (only for Admin)
+        // Account Password (only for Admin)
         if (formData.emp_access_level === "Admin" && !formData.account_pass) {
             newErrors.account_pass = true;
             setErrors(newErrors);
@@ -337,8 +403,9 @@ function Employee_Center() {
 
             setShowModal(false);
             setFormData({
-                emp_name: "", emp_mail_id: "", account_pass: "", emp_mobile_no: "",
-                emp_department: "", emp_type: "", emp_location: "", emp_access_level: ""
+                emp_first_name: "", emp_last_name: "", dob: "", blood_group: "", emp_mail_id: "", account_pass: "",
+                emp_mobile_no: "", emp_alternate_mobile_no: "", emp_department: "", emp_carrer_level: "", emp_job_position: "",
+                emp_type: "", emp_location: "", emp_access_level: ""
             });
             setEditingEmp(null);
             fetchEmployees();
@@ -411,7 +478,10 @@ function Employee_Center() {
 
     const openEditModal = (emp) => {
         setEditingEmp(emp);
-        setFormData(emp);
+        setFormData({
+            ...emp,
+            dob: emp.dob ? emp.dob.split("T")[0] : "" // ✅ Convert ISO to YYYY-MM-DD
+        });
         setShowModal(true);
     };
 
@@ -439,11 +509,12 @@ function Employee_Center() {
 
         autoTable(doc, {
             head: [[
-                "ID", "Name", "Email", "Mobile", "Department", "Type", "Location", "Access Level", "Is Active"
+                "ID", "First Name", "Last Name", "Email", "Mobile", "Department", "Type", "Location", "Access Level", "Is Active"
             ]],
             body: employees.map(emp => [
                 emp.emp_id,
-                emp.emp_name,
+                emp.emp_first_name,
+                emp.emp_last_name,
                 emp.emp_mail_id,
                 emp.emp_mobile_no,
                 emp.emp_department,
@@ -501,7 +572,7 @@ function Employee_Center() {
         worksheet.getCell(`A${rowOffset + 1}`).value = "Generated by dAssist";
 
         // Headers
-        const headers = ["ID", "Name", "Email", "Mobile", "Department", "Type", "Location", "Access Level", "Is Active"];
+        const headers = ["ID", "First Name", "Last Name", "Email", "Mobile", "Department", "Type", "Location", "Access Level", "Is Active"];
         const headerRow = worksheet.addRow(headers);
 
         headerRow.eachCell((cell) => {
@@ -514,7 +585,8 @@ function Employee_Center() {
         employees.forEach(emp => {
             const row = [
                 emp.emp_id,
-                emp.emp_name,
+                emp.emp_first_name,
+                emp.emp_last_name,
                 emp.emp_mail_id,
                 emp.emp_mobile_no,
                 emp.emp_department,
@@ -577,7 +649,7 @@ function Employee_Center() {
                                 className="emp-circle"
                                 onClick={() => setShowEmpMenu(!showEmpMenu)}
                                 style={{
-                                    backgroundColor: loggedInEmp.emp_profile_img ? "transparent" : stringToColor(loggedInEmp.emp_name),
+                                    backgroundColor: loggedInEmp.emp_profile_img ? "transparent" : stringToColor(loggedInEmp.emp_first_name + " " + loggedInEmp.emp_last_name),
                                     color: "#fff",
                                     fontWeight: "bold",
                                     fontSize: "18px",
@@ -598,7 +670,7 @@ function Employee_Center() {
                                         style={{ width: "100%", height: "100%", objectFit: "cover" }}
                                     />
                                 ) : (
-                                    loggedInEmp.emp_name.charAt(0).toUpperCase()
+                                    loggedInEmp.emp_first_name.charAt(0).toUpperCase() + loggedInEmp.emp_last_name.charAt(0).toUpperCase()
                                 )}
                             </div>
 
@@ -609,7 +681,7 @@ function Employee_Center() {
                                         <div
                                             className="emp-profile-circle"
                                             style={{
-                                                backgroundColor: loggedInEmp.emp_profile_img ? "transparent" : stringToColor(loggedInEmp.emp_name),
+                                                backgroundColor: loggedInEmp.emp_profile_img ? "transparent" : stringToColor(loggedInEmp.emp_first_name + " " + loggedInEmp.emp_last_name),
                                                 color: "#fff",
                                                 fontWeight: "bold",
                                                 fontSize: "18px",
@@ -633,14 +705,14 @@ function Employee_Center() {
                                                     style={{ width: "100%", height: "100%", objectFit: "cover" }}
                                                 />
                                             ) : (
-                                                isDropdownHovered ? <FaCamera color="white" /> : loggedInEmp.emp_name.charAt(0).toUpperCase()
+                                                isDropdownHovered ? <FaCamera color="white" /> : loggedInEmp.emp_first_name.charAt(0).toUpperCase() + loggedInEmp.emp_last_name.charAt(0).toUpperCase()
                                             )}
                                         </div>
 
                                         <div className="emp-profile-text">
-                                            <div className="emp-name">{loggedInEmp.emp_name}</div>
+                                            <div className="emp-name">{loggedInEmp.emp_first_name + " " + loggedInEmp.emp_last_name}</div>
                                             <div className="emp-org" style={{ fontStyle: "italic", whiteSpace: "nowrap" }}>
-                                                One Place, One start, One Team
+                                                One Place. One start. One Team.
                                             </div>
                                         </div>
                                     </div>
@@ -782,7 +854,7 @@ function Employee_Center() {
                                 onClick={() => {
                                     setShowModal(true);
                                     setEditingEmp(null);
-                                    setFormData({ emp_name: "", emp_mail_id: "", account_pass: "", emp_mobile_no: "", emp_department: "", emp_type: "", emp_location: "", emp_access_level: "" });
+                                    setFormData({ emp_first_name: "", emp_last_name: "", dob: "", blood_group: "", emp_mail_id: "", account_pass: "", emp_mobile_no: "", emp_alternate_mobile_no: "", emp_department: "", emp_carrer_level: "", emp_job_position: "", emp_type: "", emp_location: "", emp_access_level: "" });
                                 }}
                                 style={{ cursor: "pointer" }}
                             />
@@ -812,7 +884,7 @@ function Employee_Center() {
                             <table className="employee-table">
                                 <thead>
                                     <tr>
-                                        <th>ID</th><th>Name</th><th>Email</th><th>Mobile</th><th>Department</th>
+                                        <th>ID</th><th>First Name</th><th>Last Name</th><th>Email</th><th>Mobile</th><th>Department</th>
                                         <th>Type</th><th>Location</th><th>Access</th>
                                         <th>Is Active</th>
                                     </tr>
@@ -831,7 +903,8 @@ function Employee_Center() {
                                             }}
                                         >
                                             <td>{emp.emp_id}</td>
-                                            <td>{emp.emp_name}</td>
+                                            <td>{emp.emp_first_name}</td>
+                                            <td>{emp.emp_last_name}</td>
                                             <td>{emp.emp_mail_id}</td>
                                             <td>{emp.emp_mobile_no}</td>
                                             <td>{emp.emp_department}</td>
@@ -899,8 +972,13 @@ function Employee_Center() {
                             <div className="modal-fields">
                                 {/* Row 1 */}
                                 <div className="field-group">
-                                    <label>Name <span className="required">*</span></label>
-                                    <input type="text" name="emp_name" value={formData.emp_name} onChange={handleInputChange} className={errors.emp_name ? "input-error" : ""} />
+                                    <label>First Name <span className="required">*</span></label>
+                                    <input type="text" name="emp_first_name" value={formData.emp_first_name} onChange={handleInputChange} className={errors.emp_first_name ? "input-error" : ""} placeholder="First Name" />
+                                </div>
+
+                                <div className="field-group">
+                                    <label>Last Name <span className="required">*</span></label>
+                                    <input type="text" name="emp_last_name" value={formData.emp_last_name} onChange={handleInputChange} className={errors.emp_last_name ? "input-error" : ""} placeholder="Last Name" />
                                 </div>
 
                                 <div className="field-group">
@@ -909,16 +987,31 @@ function Employee_Center() {
                                 </div>
 
                                 <div className="field-group">
-                                    <label>Mobile <span className="required">*</span></label>
-                                    <input type="text" name="emp_mobile_no" maxLength={10} value={formData.emp_mobile_no} onChange={handleInputChange} className={errors.emp_mobile_no ? "input-error" : ""} placeholder="10-digit mobile" />
-                                </div>
-
-                                <div className="field-group">
                                     <label>Location <span className="required">*</span></label>
                                     <select name="emp_location" value={formData.emp_location} onChange={handleInputChange} className={errors.emp_location ? "input-error" : ""}>
                                         <option value="">Select Location</option>
                                         {locations.map(l => <option key={l} value={l}>{l}</option>)}
                                     </select>
+                                </div>
+
+                                <div className="field-group">
+                                    <label>Mobile <span className="required">*</span></label>
+                                    <input type="text" name="emp_mobile_no" maxLength={10} value={formData.emp_mobile_no} onChange={handleInputChange} className={errors.emp_mobile_no ? "input-error" : ""} placeholder="10-digit mobile" />
+                                </div>
+
+                                <div className="field-group">
+                                    <label>Alternate Mobile <span className="required">*</span></label>
+                                    <input type="text" name="emp_alternate_mobile_no" maxLength={10} value={formData.emp_alternate_mobile_no} onChange={handleInputChange} className={errors.emp_alternate_mobile_no ? "input-error" : ""} placeholder="10-digit mobile" />
+                                </div>
+
+                                <div className="field-group">
+                                    <label>DOB <span className="required">*</span></label>
+                                    <input type="date" name="dob" maxLength={10} value={formData.dob} onChange={handleInputChange} className={errors.dob ? "input-error" : ""} />
+                                </div>
+
+                                <div className="field-group">
+                                    <label>Blood Group <span className="required">*</span></label>
+                                    <input type="text" name="blood_group" maxLength={10} value={formData.blood_group} onChange={handleInputChange} className={errors.blood_group ? "input-error" : ""} placeholder="Please Enter Blood Group" />
                                 </div>
 
                                 <div className="field-group">
@@ -934,6 +1027,22 @@ function Employee_Center() {
                                     <select name="emp_type" value={formData.emp_type} onChange={handleInputChange} className={errors.emp_type ? "input-error" : ""}>
                                         <option value="">Select Type</option>
                                         {types.map(t => <option key={t} value={t}>{t}</option>)}
+                                    </select>
+                                </div>
+
+                                <div className="field-group">
+                                    <label>Job Position <span className="required">*</span></label>
+                                    <select name="job_position" value={formData.job_position} onChange={handleInputChange} className={errors.job_position ? "input-error" : ""}>
+                                        <option value="">Select Job Position</option>
+                                        {job_positions.map(d => <option key={d} value={d}>{d}</option>)}
+                                    </select>
+                                </div>
+
+                                <div className="field-group">
+                                    <label>Carrier Level <span className="required">*</span></label>
+                                    <select name="carrier_level" value={formData.carrier_level} onChange={handleInputChange} className={errors.carrier_level ? "input-error" : ""}>
+                                        <option value="">Select Carrier Level</option>
+                                        {carrier_levels.map(d => <option key={d} value={d}>{d}</option>)}
                                     </select>
                                 </div>
 

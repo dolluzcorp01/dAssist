@@ -13,7 +13,7 @@ import { FaDownload, FaFilePdf, FaFileExcel } from "react-icons/fa";
 import ExcelJS from "exceljs";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import LOGO from "./assets/img/LOGO.png";
+import logo_eagle from "./assets/img/logo_eagle.png";
 import "./Dashboard.css";
 
 // Status Colors Map
@@ -168,7 +168,7 @@ function Dashboard() {
                 const imgWidth = 40;
                 const imgHeight = 20;
                 const imgX = (pageWidth - imgWidth) / 2;
-                doc.addImage(LOGO, "PNG", imgX, 5, imgWidth, imgHeight);
+                doc.addImage(logo_eagle, "PNG", imgX, 5, imgWidth, imgHeight);
                 doc.setFontSize(13);
                 doc.text(isEmployee ? "Employees Report" : "Tickets Report", pageWidth / 2, 30, { align: "center" });
                 doc.setFontSize(9);
@@ -185,8 +185,8 @@ function Dashboard() {
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet(isEmployee ? "Employees" : "Tickets");
 
-        // Add Logo
-        const imageResponse = await fetch(LOGO);
+        // Add logo_eagle
+        const imageResponse = await fetch(logo_eagle);
         const imageBlob = await imageResponse.blob();
         const imageBuffer = await imageBlob.arrayBuffer();
         const imageId = workbook.addImage({ buffer: imageBuffer, extension: "png" });

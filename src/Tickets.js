@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import logo_eagle from "./assets/img/logo_eagle.png";
+import New_Straight_Logo from "./assets/img/New_Straight_Logo.jpg";
 import { apiFetch } from "./utils/api";
 import Swal from "sweetalert2";
 import { FaTimes } from "react-icons/fa";
@@ -404,16 +404,16 @@ const Tickets = () => {
                 <div className="ticket-logo">
                     <a className="navbar-brand" href="#">
                         <img
-                            src={logo_eagle}
+                            src={New_Straight_Logo}
                             alt="dassist logo_eagle"
                             style={{
-                                height: "80px",
+                                height: "100px",
                                 objectFit: "contain",
                                 marginLeft: "-15px"
                             }}
                         />
                     </a>
-                    <span style={{ marginLeft: "5px" }}>DOLLUZ</span>
+                    {/* <span style={{ marginLeft: "5px" }}>DOLLUZ</span> */}
                 </div>
 
                 <form className="ticket-form" onSubmit={handleSubmit}>
