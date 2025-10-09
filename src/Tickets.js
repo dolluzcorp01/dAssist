@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import New_Straight_Logo from "./assets/img/New_Straight_Logo.jpg";
+import DOLLUZ_CORP from "./assets/img/DOLLUZ_CORP.png";
 import { apiFetch } from "./utils/api";
 import Swal from "sweetalert2";
 import { FaTimes } from "react-icons/fa";
@@ -115,7 +115,8 @@ const Tickets = () => {
     }, []);
 
     const [formData, setFormData] = useState({
-        name: "",
+        emp_first_name: "",
+        emp_last_name: "",
         email: "",
         mobile: "",
         altMobile: "",
@@ -196,7 +197,8 @@ const Tickets = () => {
                 setFormData((prev) => ({
                     ...prev,
                     emp_id: data.emp_id,
-                    name: data.emp_name,
+                    emp_first_name: data.emp_first_name,
+                    emp_last_name: data.emp_last_name,
                     mobile: data.emp_mobile_no,
                     department: data.emp_department,
                     employeeType: data.emp_type,
@@ -208,7 +210,8 @@ const Tickets = () => {
                 setEmailError("This email is not registered with Dolluz Corp. Please contact admin (info@dolluzcorp.com).");
                 setFormData((prev) => ({
                     ...prev,
-                    name: "",
+                    emp_first_name: "",
+                    emp_last_name: "",
                     mobile: "",
                     department: "",
                     employeeType: "",
@@ -232,7 +235,8 @@ const Tickets = () => {
 
         const fieldNames = {
             email: "Email",
-            name: "Name",
+            emp_first_name: "First Name",
+            emp_last_name: "Last Name",
             mobile: "Mobile No",
             altMobile: "Alternate Mobile No",
             department: "Department",
@@ -248,7 +252,8 @@ const Tickets = () => {
         // ✅ Validate fields in order
         const fieldOrder = [
             "email",
-            "name",
+            "emp_first_name",
+            "emp_last_name",
             "mobile",
             "altMobile",
             "department",
@@ -363,12 +368,13 @@ const Tickets = () => {
 
             // ✅ Redirect to Thank_You.js with data
             navigate("/thank-you", {
-                state: { employeeName: formData.name, ticketId: data.ticket_id },
+                state: { employeeName: formData.emp_first_name + " "+ formData.emp_last_name, ticketId: data.ticket_id },
             });
 
             // ✅ Reset form
             setFormData({
-                name: "",
+                emp_first_name: "",
+                emp_last_name: "",
                 email: "",
                 mobile: "",
                 altMobile: "",
@@ -404,7 +410,7 @@ const Tickets = () => {
                 <div className="ticket-logo">
                     <a className="navbar-brand" href="#">
                         <img
-                            src={New_Straight_Logo}
+                            src={DOLLUZ_CORP}
                             alt="dassist logo_eagle"
                             style={{
                                 height: "100px",
@@ -435,16 +441,31 @@ const Tickets = () => {
 
                     <div className={`ticket-fields ${!formData.emp_id ? "blurred" : ""}`}>
 
-                        {/* Name */}
-                        <label>Name {errors.name && <span style={{ color: "red" }}>* </span>} </label>
-                        <input
-                            type="text"
-                            name="name"
-                            value={formData.name}
-                            onChange={handleChange}
-                            disabled
-                            className={errors.name ? "invalid" : ""}
-                        />
+                        {/* First Name & Last Name */}
+                        <div className="ticket-row">
+                            <div className="field">
+                                <label>First Name {errors.emp_first_name && <span style={{ color: "red" }}>* </span>} </label>
+                                <input
+                                    type="text"
+                                    name="name"
+                                    value={formData.emp_first_name}
+                                    onChange={handleChange}
+                                    disabled
+                                    className={errors.emp_first_name ? "invalid" : ""}
+                                />
+                            </div>
+                            <div className="field">
+                                <label>last Name {errors.emp_last_name && <span style={{ color: "red" }}>* </span>} </label>
+                                <input
+                                    type="text"
+                                    name="name"
+                                    value={formData.emp_last_name}
+                                    onChange={handleChange}
+                                    disabled
+                                    className={errors.emp_last_name ? "invalid" : ""}
+                                />
+                            </div>
+                        </div>
 
                         {/* Mobile & Alternate Mobile */}
                         <div className="ticket-row">

@@ -6,12 +6,12 @@ const mysql = require("mysql2");
 const multer = require("multer");
 const nodemailer = require("nodemailer");
 
-const db = getDBConnection('dadmin');
+const db = getDBConnection('dassist');
 
 // Lookup employee by email
 router.get("/employee/:email", (req, res) => {
     const email = req.params.email;
-    const query = `SELECT * FROM employee WHERE emp_mail_id = ? AND deleted_time IS NULL`;
+    const query = `SELECT * FROM dadmin.employee WHERE emp_mail_id = ? AND deleted_time IS NULL`;
     db.query(query, [email], (err, results) => {
         if (err) return res.status(500).json({ error: "Database error" });
         if (results.length > 0) return res.json(results[0]);
@@ -81,7 +81,7 @@ router.post("/submit", ticketUpload.single("attachment"), (req, res) => {
                 html: `
           <div style="font-family: Arial, sans-serif; padding: 15px; border: 1px solid #ddd; border-radius: 8px;">
             <h2 style="color: #4A90E2;">Ticket Submission Confirmation</h2>
-            <p>Hello <strong>${data.name}</strong>,</p>
+            <p>Hello <strong>${data.emp_first_name + " " + data.emp_last_name}</strong>,</p>
             <p>Your ticket <strong>${formattedId}</strong> regarding “<em>${data.subject}</em>” has been <strong>Submitted</strong>.</p>
             <p><strong>Current Status:</strong> Submitted</p>
             <p><strong>Latest Comment:</strong> - </p>
@@ -110,36 +110,7 @@ router.post("/submit", ticketUpload.single("attachment"), (req, res) => {
     });
 });
 
-// 🔹 Get all tickets with employee info including attachment
-router.get("/all", (req, res) => {
-    const query = `
-    SELECT 
-      t.ticket_id,
-      CONCAT(e.emp_first_name, ' ', e.emp_last_name) AS emp_name, 
-      e.emp_mail_id,
-      e.emp_department,
-      t.category,
-      t.priority_level,
-      t.contact_method,
-      t.subject,
-      t.description, 
-      t.attachment_file, 
-      t.ticket_status,
-      t.created_time
-    FROM tickets_entry t
-    JOIN employee e ON t.emp_id = e.emp_id
-    ORDER BY t.created_time DESC
-  `;
-
-    db.query(query, (err, results) => {
-        if (err) {
-            console.error("❌ Error fetching tickets:", err);
-            return res.status(500).json({ error: "Database error" });
-        }
-        res.json(results);
-    });
-});
-
+// POST /api/tickets/save_status
 router.post("/save_status", (req, res) => {
     const { ticket_id, ticket_status, ticket_comments, updated_by, prev_status } = req.body;
 
@@ -194,9 +165,9 @@ router.post("/send_status_mail", async (req, res) => {
 
     // 1️⃣ Get ticket + employee info
     const ticketQuery = `
-        SELECT t.ticket_id, t.subject, e.emp_name, e.emp_mail_id
+        SELECT t.ticket_id, t.subject, CONCAT(e.emp_first_name, ' ', e.emp_last_name) AS emp_name, e.emp_mail_id
         FROM tickets_entry t
-        JOIN employee e ON t.emp_id = e.emp_id
+        JOIN dadmin.employee e ON t.emp_id = e.emp_id
         WHERE t.ticket_id = ?
     `;
     db.query(ticketQuery, [ticket_id], (err, ticketResults) => {
@@ -287,43 +258,6 @@ router.post("/send_status_mail", async (req, res) => {
                 }
             });
         });
-    });
-});
-
-// Get history by ticket_id
-router.get("/ticket_history/:ticketId", (req, res) => {
-    const { ticketId } = req.params;
-    const query = `
-        SELECT 
-            ticket_id,
-            ticket_status,
-            updated_by      AS status_updated_by,
-            updated_time    AS status_updated_time,
-            NULL            AS ticket_comments,
-            NULL            AS comment_added_by,
-            NULL            AS comments_added_time
-        FROM ticket_status_history
-        WHERE ticket_id = ?
-
-        UNION ALL
-
-        SELECT
-            ticket_id,
-            NULL            AS ticket_status,
-            NULL            AS status_updated_by,
-            NULL            AS status_updated_time,
-            ticket_comments,
-            added_by        AS comment_added_by,
-            added_time      AS comments_added_time
-        FROM ticket_comment_history
-        WHERE ticket_id = ?
-
-        ORDER BY 
-            COALESCE(status_updated_time, comments_added_time) ASC
-    `;
-    db.query(query, [ticketId, ticketId], (err, results) => {
-        if (err) return res.status(500).json({ error: "Database error", details: err });
-        res.json(results);
     });
 });
 
