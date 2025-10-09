@@ -355,7 +355,6 @@ const Tickets = () => {
             setIsSubmitting(false);
             return;
         }
-        console.log("Submitting form data:", ...formDataToSend); // Debug log
 
         try {
             const res = await apiFetch("/api/tickets/submit", {
