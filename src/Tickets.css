@@ -4,15 +4,10 @@
     align-items: center;
     min-height: 100vh;
     padding: 20px;
-
-    /* Background image settings */
     background-image: url('./assets/img/doodle_bg.jpg');
     background-size: cover;
-    /* Fit the container */
     background-repeat: no-repeat;
-    /* Prevent tiling */
     background-position: center;
-    /* Center the image */
 }
 
 .ticket-card {
@@ -271,4 +266,20 @@ select.invalid {
 
 .priority-dropdown-item * {
     pointer-events: none;
+}
+
+.spinner {
+    width: 30px;
+    height: 30px;
+    border: 4px solid #ddd;
+    border-top: 4px solid #4A90E2;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 10px auto;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
 }

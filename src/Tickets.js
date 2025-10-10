@@ -17,6 +17,11 @@ const Tickets = () => {
     const [showContact, setShowContact] = useState(false);
     const priorityRef = useRef(null);
     const contactRef = useRef(null);
+    const [otpCode, setOtpCode] = useState("");
+    const [otpVerified, setOtpVerified] = useState(false);
+    const [otpError, setOtpError] = useState("");
+    const [isSendingOtp, setIsSendingOtp] = useState(false);
+    const [showOtpField, setShowOtpField] = useState(false);
 
     const { quill, quillRef } = useQuill({
         theme: "snow",
@@ -176,15 +181,21 @@ const Tickets = () => {
         if (name === "email") {
             if (!value) {
                 setEmailError("");
-                setFormData((prev) => ({
+                setFormData(prev => ({
                     ...prev,
-                    name: "",
+                    emp_id: null,
+                    emp_first_name: "",
+                    emp_last_name: "",
                     mobile: "",
                     department: "",
                     employeeType: "",
-                    location: "",
-                    emp_id: null,
+                    location: ""
                 }));
+                setOtpVerified(false);
+                setOtpCode("");
+                setOtpError("");
+                setShowOtpField(false);
+
                 return;
             }
 
@@ -206,19 +217,82 @@ const Tickets = () => {
                 }));
 
                 setEmailError("");
+
+                // ✅ Start Loader
+                setIsSendingOtp(true);
+
+                // ✅ Send OTP after email is validated
+                const otpResponse = await apiFetch("/api/tickets/send-otp", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email: value }),
+                });
+
+                // ✅ Stop Loader
+                setIsSendingOtp(false);
+
+                if (otpResponse.ok) {
+                    setShowOtpField(true);
+                    Swal.fire({
+                        icon: "success",
+                        title: "OTP Sent!",
+                        text: "Please check your registered email for the OTP.",
+                    });
+                } else {
+                    setShowOtpField(false);
+                    Swal.fire({
+                        icon: "error",
+                        title: "Failed to send OTP",
+                        text: "Please try again later.",
+                    });
+                }
+
+                setOtpVerified(false); // reset OTP verification
+                setOtpCode("");
+                setOtpError("");
+
             } catch (err) {
+                setIsSendingOtp(false);
+                setShowOtpField(false);
                 setEmailError("This email is not registered with Dolluz Corp. Please contact admin (info@dolluzcorp.com).");
-                setFormData((prev) => ({
-                    ...prev,
-                    emp_first_name: "",
-                    emp_last_name: "",
-                    mobile: "",
-                    department: "",
-                    employeeType: "",
-                    location: "",
-                    emp_id: null,
-                }));
+                setFormData((prev) => ({ ...prev, emp_id: null, emp_first_name: "", emp_last_name: "" }));
             }
+        }
+    };
+
+    const handleOtpChange = (e) => {
+        const value = e.target.value.replace(/\D/g, ""); // Only digits
+        setOtpCode(value);
+
+        if (value.length === 6) {
+            verifyOTP(value);
+        } else {
+            setOtpError(""); // Clear error while typing
+        }
+    };
+
+    const verifyOTP = async (code) => {
+        setOtpError("");
+
+        try {
+            const res = await apiFetch("/api/tickets/verify-otp", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email: formData.email, otp: code }),
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                setOtpVerified(true);
+                setOtpError("");
+            } else {
+                setOtpError(data.message || "Invalid OTP");
+                setOtpVerified(false);
+            }
+        } catch (err) {
+            setOtpError("Error verifying OTP. Please try again.");
+            setOtpVerified(false);
         }
     };
 
@@ -367,7 +441,7 @@ const Tickets = () => {
 
             // ✅ Redirect to Thank_You.js with data
             navigate("/thank-you", {
-                state: { employeeName: formData.emp_first_name + " "+ formData.emp_last_name, ticketId: data.ticket_id },
+                state: { employeeName: formData.emp_first_name + " " + formData.emp_last_name, ticketId: data.ticket_id },
             });
 
             // ✅ Reset form
@@ -433,12 +507,35 @@ const Tickets = () => {
                             className={emailError || errors.email ? "invalid" : formData.email && !emailError ? "valid" : ""}
                         />
                         {!emailError && formData.email && (
-                            <i class="fa-solid fa-circle-check email-valid-icon"></i>
+                            <i className="fa-solid fa-circle-check email-valid-icon"></i>
                         )}
                     </div>
                     {emailError && <p style={{ color: "red" }}>{emailError}</p>}
 
-                    <div className={`ticket-fields ${!formData.emp_id ? "blurred" : ""}`}>
+                    {/* Loader while sending OTP */}
+                    {isSendingOtp && <div className="spinner"></div>}
+
+                    {/* OTP Section */}
+                    {showOtpField && !otpVerified && (
+                        <div className="otp-section mt-2">
+                            <label>Enter OTP</label>
+                            <div className="otp-input-container">
+                                <input
+                                    type="text"
+                                    value={otpCode}
+                                    onChange={handleOtpChange}
+                                    maxLength={6}
+                                    className={otpError ? "invalid" : otpCode.length === 6 && !otpError ? "valid" : ""}
+                                />
+                                {otpCode.length === 6 && !otpError && otpVerified && (
+                                    <i className="fa-solid fa-circle-check email-valid-icon"></i>
+                                )}
+                            </div>
+                            {otpError && <p style={{ color: "red" }}>{otpError}</p>}
+                        </div>
+                    )}
+
+                    <div className={`ticket-fields ${(!formData.emp_id || !otpVerified) ? "blurred" : ""}`}>
 
                         {/* First Name & Last Name */}
                         <div className="ticket-row">
