@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import DOLLUZ_CORP from "./assets/img/DOLLUZ_CORP.png";
+import DOLLUZ_CORP_thin_line_logo from "./assets/img/DOLLUZ_CORP_thin_line_logo.png";
 import { apiFetch } from "./utils/api";
 import Swal from "sweetalert2";
 import { FaTimes } from "react-icons/fa";
@@ -483,7 +483,7 @@ const Tickets = () => {
                 <div className="ticket-logo">
                     <a className="navbar-brand" href="#">
                         <img
-                            src={DOLLUZ_CORP}
+                            src={DOLLUZ_CORP_thin_line_logo}
                             alt="dassist logo_eagle"
                             style={{
                                 height: "100px",
