@@ -201,6 +201,7 @@ const Tickets = () => {
 
             try {
                 const res = await apiFetch(`/api/tickets/employee/${value}`);
+                console.log("Employee API response:", res);
                 if (!res.ok) throw new Error("Employee not found");
 
                 const data = await res.json();

@@ -21,10 +21,21 @@ const transporter = nodemailer.createTransport({
 // Lookup employee by email
 router.get("/employee/:email", (req, res) => {
     const email = req.params.email;
+    console.log(`🔹 Employee lookup requested for email: ${email}`);
+
     const query = `SELECT * FROM dadmin.employee WHERE emp_mail_id = ? AND deleted_time IS NULL`;
     db.query(query, [email], (err, results) => {
-        if (err) return res.status(500).json({ error: "Database error" });
-        if (results.length > 0) return res.json(results[0]);
+        if (err) {
+            console.error(`❌ Database error while fetching employee ${email}:`, err);
+            return res.status(500).json({ error: "Database error" });
+        }
+
+        if (results.length > 0) {
+            console.log(`✅ Employee found:`, results[0]);
+            return res.json(results[0]);
+        }
+
+        console.warn(`⚠️ Employee not found for email: ${email}`);
         return res.status(404).json({ error: "Employee not found" });
     });
 });
