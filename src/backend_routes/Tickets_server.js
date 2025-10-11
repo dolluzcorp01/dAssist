@@ -31,7 +31,6 @@ router.get("/employee/:email", (req, res) => {
         }
 
         if (results.length > 0) {
-            console.log(`✅ Employee found:`, results[0]);
             return res.json(results[0]);
         }
 
