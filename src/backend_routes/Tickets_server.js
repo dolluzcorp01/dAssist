@@ -10,12 +10,12 @@ const db = getDBConnection('dassist');
 
 // 🔹 Configure Nodemailer (use Gmail or company SMTP)
 const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
+    host: "smtp.zoho.in",
     port: 587,
     secure: false,
     auth: {
-        user: "vv.pavithran12@gmail.com",
-        pass: "aajuyoahcuszqrey",
+        user: "support@dolluzcorp.in",
+        pass: "KebcfG6SUTnx",
     },
 });
 
@@ -61,7 +61,7 @@ const generateOTP = (userInput, res) => {
         }
 
         const mailOptions = {
-            from: '"dAssist Support" <vv.pavithran12@gmail.com>',
+            from: '"dAssist Support" <support@dolluzcorp.in>',
             to: userInput,
             subject: "dAssist - Verify Your Email Address",
             html: `
@@ -162,7 +162,7 @@ router.post("/submit", ticketUpload.single("attachment"), (req, res) => {
 
             // 🔹 Build email content
             const mailOptions = {
-                from: '"Dolluz Support" <vv.pavithran12@gmail.com>',
+                from: '"Dolluz Support" <support@dolluzcorp.in>',
                 to: `${data.email}, info@dolluzcorp.com`,
                 subject: `[Ticket ID: ${formattedId}] Support Request Notification`,
                 html: `
@@ -243,109 +243,6 @@ router.post("/save_status", (req, res) => {
             }
         })
         .catch(err => res.status(500).json({ message: "Database error", error: err }));
-});
-
-// POST /api/tickets/send_status_mail
-router.post("/send_status_mail", async (req, res) => {
-    const { ticket_id } = req.body;
-    if (!ticket_id) return res.status(400).json({ message: "Missing ticket_id" });
-
-    // 1️⃣ Get ticket + employee info
-    const ticketQuery = `
-        SELECT t.ticket_id, t.subject, CONCAT(e.emp_first_name, ' ', e.emp_last_name) AS emp_name, e.emp_mail_id
-        FROM tickets_entry t
-        JOIN dadmin.employee e ON t.emp_id = e.emp_id
-        WHERE t.ticket_id = ?
-    `;
-    db.query(ticketQuery, [ticket_id], (err, ticketResults) => {
-        if (err) return res.status(500).json({ message: "DB error fetching ticket", error: err });
-        if (ticketResults.length === 0) return res.status(404).json({ message: "Ticket not found" });
-
-        const ticket = ticketResults[0];
-
-        // 2️⃣ Get latest status and comment
-        const latestStatusQuery = `
-            SELECT ticket_status, updated_by, updated_time
-            FROM ticket_status_history
-            WHERE ticket_id = ?
-            ORDER BY updated_time DESC
-            LIMIT 1
-        `;
-
-        const latestCommentQuery = `
-            SELECT ticket_comments, added_by, added_time
-            FROM ticket_comment_history
-            WHERE ticket_id = ?
-            ORDER BY added_time DESC
-            LIMIT 1
-        `;
-
-        db.query(latestStatusQuery, [ticket_id], (err2, statusResults) => {
-            if (err2) return res.status(500).json({ message: "DB error fetching status", error: err2 });
-            const latestStatus = statusResults[0] || null;
-
-            db.query(latestCommentQuery, [ticket_id], async (err3, commentResults) => {
-                if (err3) return res.status(500).json({ message: "DB error fetching comments", error: err3 });
-                const latestComment = commentResults[0] || null;
-
-                // 3️⃣ Determine which update is latest
-                let statusToSend = null;
-                let commentToSend = null;
-
-                if (latestStatus && latestComment) {
-                    const statusTime = new Date(latestStatus.updated_time).getTime();
-                    const commentTime = new Date(latestComment.added_time).getTime();
-
-                    if (statusTime > commentTime) {
-                        statusToSend = latestStatus.ticket_status;
-                    } else if (commentTime > statusTime) {
-                        commentToSend = latestComment.ticket_comments;
-                    } else {
-                        // both updated at same time
-                        statusToSend = latestStatus.ticket_status;
-                        commentToSend = latestComment.ticket_comments;
-                    }
-                } else if (latestStatus) {
-                    statusToSend = latestStatus.ticket_status;
-                } else if (latestComment) {
-                    commentToSend = latestComment.ticket_comments;
-                } else {
-                    return res.status(400).json({ message: "No updates found to send" });
-                }
-
-                // 4️⃣ Prepare email content
-                const mailOptions = {
-                    from: '"Dolluz Support" <vv.pavithran12@gmail.com>',
-                    to: ticket.emp_mail_id,
-                    subject: `[Ticket ID: ${ticket.ticket_id}] - Update on Your Request`,
-                    html: `
-                        <div style="font-family: Arial, sans-serif; padding: 15px; border: 1px solid #ddd; border-radius: 8px;">
-                            <h2 style="color: #4A90E2;">Ticket Update Notification</h2>
-                            <p>Hello <strong>${ticket.emp_name}</strong>,</p>
-                            <p>Your ticket <strong>${ticket.ticket_id}</strong> regarding “<em>${ticket.subject}</em>” has an update.</p>
-                            ${statusToSend ? `<p><strong>Current Status:</strong> ${statusToSend}</p>` : ''}
-                            ${commentToSend ? `<p><strong>Latest Comment:</strong> ${commentToSend}</p>` : ''}
-                            <br/>
-                            <p>For any concerns, please contact 
-                                <a href="mailto:info@dolluzcorp.com">info@dolluzcorp.com</a> with the Ticket ID in the subject line.
-                            </p>
-                            <br/>
-                            <p style="color: #888;">— Dolluz Support Team</p>
-                        </div>
-                    `,
-                };
-
-                // 5️⃣ Send email
-                try {
-                    await transporter.sendMail(mailOptions);
-                    res.json({ message: "Email sent successfully" });
-                } catch (emailErr) {
-                    console.error("❌ Error sending email:", emailErr);
-                    res.status(500).json({ message: "Failed to send email", error: emailErr });
-                }
-            });
-        });
-    });
 });
 
 module.exports = router;
