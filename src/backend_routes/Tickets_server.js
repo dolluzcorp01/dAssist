@@ -21,7 +21,6 @@ const transporter = nodemailer.createTransport({
 // Lookup employee by email
 router.get("/employee/:email", (req, res) => {
     const email = req.params.email;
-    console.log(`🔹 Employee lookup requested for email: ${email}`);
 
     const query = `SELECT * FROM dadmin.employee WHERE emp_mail_id = ? AND deleted_time IS NULL`;
     db.query(query, [email], (err, results) => {
@@ -61,40 +60,40 @@ const generateOTP = (userInput, res) => {
     const expiryTime = new Date(Date.now() + 5 * 60000);
 
     const query = `INSERT INTO dadmin.otpstorage (UserInput, OTP, ExpiryTime) VALUES (?, ?, ?) 
-                 ON DUPLICATE KEY UPDATE OTP = ?, ExpiryTime = ?`;
+                   ON DUPLICATE KEY UPDATE OTP = ?, ExpiryTime = ?`;
 
-    db.query(query, [userInput, otp, expiryTime, otp, expiryTime], async (err) => {
+    db.query(query, [userInput, otp, expiryTime, otp, expiryTime], (err) => {
         if (err) {
             console.error('❌ Error in generateOTP:', err);
             return res.status(500).json({ message: 'Error generating OTP' });
         }
 
+        // ✅ Respond immediately
+        res.json({ message: "OTP generated and will be sent shortly" });
+
+        // 🔹 Send email asynchronously
         const mailOptions = {
             from: '"dAssist Support" <support@dolluzcorp.in>',
             to: userInput,
             subject: "dAssist - Verify Your Email Address",
             html: `
-    <div style="font-family: Arial, sans-serif; padding: 15px; border: 1px solid #ddd; border-radius: 8px;">
-      <h2 style="color: #4A90E2;">dAssist - Email Verification</h2>
-      <p>Hello,</p>
-      <p>We received a request to verify your email for accessing <strong>dAssist</strong>.</p>
-      <p>Please use the OTP below to complete your verification:</p>
-      <h3 style="color: #333; font-size: 24px;">${otp}</h3>
-      <p>This OTP is valid for <strong>2 minutes</strong>. Do not share it with anyone.</p>
-      <p>If you did not request this verification, please ignore this message.</p>
-      <br/>
-      <p style="color: #888;">- The dAssist Team</p>
-    </div>
-    `
+                <div style="font-family: Arial, sans-serif; padding: 15px; border: 1px solid #ddd; border-radius: 8px;">
+                    <h2 style="color: #4A90E2;">dAssist - Email Verification</h2>
+                    <p>Hello,</p>
+                    <p>We received a request to verify your email for accessing <strong>dAssist</strong>.</p>
+                    <p>Please use the OTP below to complete your verification:</p>
+                    <h3 style="color: #333; font-size: 24px;">${otp}</h3>
+                    <p>This OTP is valid for <strong>2 minutes</strong>. Do not share it with anyone.</p>
+                    <p>If you did not request this verification, please ignore this message.</p>
+                    <br/>
+                    <p style="color: #888;">- The dAssist Team</p>
+                </div>
+            `
         };
 
-        try {
-            await transporter.sendMail(mailOptions);
-            res.json({ message: "OTP sent successfully" });
-        } catch (error) {
-            console.error("❌ Error sending OTP email:", error);
-            res.status(500).json({ message: "Failed to send OTP email" });
-        }
+        transporter.sendMail(mailOptions)
+            .then(info => console.log("📧 OTP email sent:", info.response))
+            .catch(err => console.error("❌ Error sending OTP email:", err));
     });
 };
 
