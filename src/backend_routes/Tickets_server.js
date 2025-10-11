@@ -10,7 +10,7 @@ const db = getDBConnection('dassist');
 // 🔹 Configure Nodemailer (use Gmail or company SMTP)
 const transporter = nodemailer.createTransport({
     host: "smtp.zoho.in",
-    port: 587,
+    port: 465,
     secure: false,
     auth: {
         user: "support@dolluzcorp.in",
