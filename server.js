@@ -11,7 +11,8 @@ const allowedOrigins = [
     'http://localhost:3000',   // Allow React frontend
     'https://dassist.dolluzcorp.in',   // Production URL
     'http://127.0.0.1:3000',   // Allow localhost if accessing via 127.0.0.1
-    'http://localhost:4001'     // Allow backend server origin (no trailing slash)
+    'http://localhost:4001',     // Allow backend server origin (no trailing slash)
+    'https://dassist.dolluzcorp.in:3000' // Extra frontend url
 ];
 
 // Enable CORS with the allowed origins and credentials

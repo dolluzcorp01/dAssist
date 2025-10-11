@@ -62,16 +62,13 @@ const generateOTP = (userInput, res) => {
     const query = `INSERT INTO dadmin.otpstorage (UserInput, OTP, ExpiryTime) VALUES (?, ?, ?) 
                    ON DUPLICATE KEY UPDATE OTP = ?, ExpiryTime = ?`;
 
-    db.query(query, [userInput, otp, expiryTime, otp, expiryTime], (err) => {
+    db.query(query, [userInput, otp, expiryTime, otp, expiryTime], async (err) => {
         if (err) {
             console.error('❌ Error in generateOTP:', err);
             return res.status(500).json({ message: 'Error generating OTP' });
         }
 
-        // ✅ Respond immediately
-        res.json({ message: "OTP generated and will be sent shortly" });
-
-        // 🔹 Send email asynchronously
+        // 🔹 Send email and respond only after it's successful/fails
         const mailOptions = {
             from: '"dAssist Support" <support@dolluzcorp.in>',
             to: userInput,
@@ -91,9 +88,16 @@ const generateOTP = (userInput, res) => {
             `
         };
 
-        transporter.sendMail(mailOptions)
-            .then(info => console.log("📧 OTP email sent:", info.response))
-            .catch(err => console.error("❌ Error sending OTP email:", err));
+        try {
+            const info = await transporter.sendMail(mailOptions);
+            console.log("📧 OTP email sent:", info.response);
+
+            // ✅ Respond only after email is sent
+            res.json({ message: "OTP sent successfully" });
+        } catch (error) {
+            console.error("❌ Error sending OTP email:", error);
+            res.status(500).json({ message: "Failed to send OTP email" });
+        }
     });
 };
 
